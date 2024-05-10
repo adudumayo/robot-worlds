@@ -1,0 +1,7 @@
+sudo ufw status
+
+sudo ufw allow 5000/tcp
+
+sudo ufw enable
+
+sudo ufw disable
