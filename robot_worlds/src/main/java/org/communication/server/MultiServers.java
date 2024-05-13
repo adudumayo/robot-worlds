@@ -14,6 +14,9 @@ public class MultiServers {
         ServerSocket s = new ServerSocket( SimpleServer.PORT);
         System.out.println("Server running & waiting for client connections.");
 
+        World world = World.getInstance();
+
+
         // Thread for handling user input
         Thread userInputThread = new Thread(() -> {
             String trialString;
@@ -29,7 +32,6 @@ public class MultiServers {
             System.exit(0); // Close the server socket when user inputs "quit"
         });
         userInputThread.start();
-
 
         while(true) {
             try {

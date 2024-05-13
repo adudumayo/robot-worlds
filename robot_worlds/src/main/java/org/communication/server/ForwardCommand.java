@@ -6,7 +6,11 @@ public class ForwardCommand extends Command {
         int nrSteps = Integer.parseInt(getArgument());
         if (target.updatePosition(nrSteps)){
             target.setStatus("Moved forward by "+nrSteps+" steps.");
-        } else {
+        } else if(target.positionCheck) {
+            target.setStatus("Sorry, there is an obstacle in way!");
+        } else if(target.pathCheck) {
+            target.setStatus("Sorry, there is an obstacle in way!");
+        }else{
             target.setStatus("Sorry, I cannot go outside my safe zone.");
         }
         return true;

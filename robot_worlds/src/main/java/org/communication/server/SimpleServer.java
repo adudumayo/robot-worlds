@@ -3,6 +3,8 @@ package org.communication.server;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.communication.client.SimpleClient.robotState;
 
 public class SimpleServer implements Runnable {
@@ -29,6 +31,7 @@ public class SimpleServer implements Runnable {
 
 
     public void run() {
+
         Robot robot = null; // Declare the robot variable outside the try block
 
         try {
@@ -49,8 +52,10 @@ public class SimpleServer implements Runnable {
                         if (parts.length > 1) {
                             String robotName = parts[1]; // name is the second element
                             robot = new Robot(robotName); // create new robot object
+
                             robotNames.add(robotName); // add the robots name to an array list
                             System.out.println(robotName + " just launched into the game!");
+
                         } else {
                             // if no name provide inform client about invalid command
                             out.println("Invalid command. Please provide a name for the robot.");
@@ -76,10 +81,17 @@ public class SimpleServer implements Runnable {
         }
     }
 
-
     private void closeQuietly() {
         try { in.close(); out.close();
         } catch(IOException ex) {}
+    }
+
+    public static void listObstacles(){
+        World world = World.getInstance();
+        for (Obstacle obs : world.obstacles){
+            String printObstacle =String.format("There are some obstacles:\n- At position " + obs.getX() + ", " +  obs.getY() + " (to " +  (obs.getX()+4) + ", " + (obs.getY()+4) +")");
+            System.out.println(printObstacle);
+        }
     }
     public static void displayHeader(){
         System.out.println("\n**********************************************");

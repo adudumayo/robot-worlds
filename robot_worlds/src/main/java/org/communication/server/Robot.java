@@ -1,15 +1,16 @@
 package org.communication.server;
 
 public class Robot {
-    private final Position TOP_LEFT = new Position(-200,100);
-    private final Position BOTTOM_RIGHT = new Position(100,-200);
-
+    private final Position TOP_LEFT = new Position(-200,200);
+    private final Position BOTTOM_RIGHT = new Position(200,-200);
     public static final Position CENTRE = new Position(0,0);
 
     private Position position;
     private Direction currentDirection;
     private String status;
     private String name;
+    public boolean positionCheck;
+    public boolean pathCheck;
 
     public Robot(String name) {
         this.name = name;
@@ -39,7 +40,6 @@ public class Robot {
         }
     }
 
-
     public boolean updatePosition(int nrSteps){
         int newX = this.position.getX();
         int newY = this.position.getY();
@@ -53,8 +53,17 @@ public class Robot {
         }else if (Direction.RIGHT.equals(this.currentDirection)){
             newX = newX + nrSteps;
         }
-
+        World world = World.getInstance();
         Position newPosition = new Position(newX, newY);
+        positionCheck = world.isPositionBlocked(newPosition.getX(),newPosition.getY());
+        pathCheck = world.isPathBlocked(position.getX(),position.getY(),newPosition.getX(),newPosition.getY());
+
+        if(positionCheck){
+            return false;
+        }
+        if(pathCheck){
+            return false;
+        }
         if (newPosition.isIn(TOP_LEFT,BOTTOM_RIGHT)){
             this.position = newPosition;
             return true;

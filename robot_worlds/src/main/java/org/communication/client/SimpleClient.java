@@ -3,6 +3,7 @@ package org.communication.client;
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
+import static org.communication.server.SimpleServer.listObstacles;
 
 public class SimpleClient {
     public static void main(String args[]) {
@@ -17,6 +18,7 @@ public class SimpleClient {
             displayHeaderRobot();
             displayRobotCommands();
 
+
             //Keep sending and receiving messages util the user decides to quit
             while(true){
                 String userInput = sc.nextLine().toLowerCase();
@@ -24,6 +26,8 @@ public class SimpleClient {
                 // check if user wants to quit
                 if (userInput.equals("quit") || userInput.equals("off")){
                     System.exit(0);
+                }else if (userInput.equals("look")){
+                    listObstacles();
                 }else if(userInput.equals("state")){
                     robotState();
                     continue;
@@ -32,9 +36,10 @@ public class SimpleClient {
                     out.println(userInput);
                     out.flush();
                 }
-                //read and display response from server
+
+//              read and display response from server
                 String robotStatus = in.readLine();
-                System.out.println("Server Response: "+ robotStatus);
+                System.out.println(robotStatus);
             }
 
         } catch (IOException e) {
