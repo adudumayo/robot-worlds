@@ -18,24 +18,18 @@ public class SimpleServer implements Runnable {
 
     public SimpleServer(Socket socket) throws IOException {
         clientMachine = socket.getInetAddress().getHostName();
-//        System.out.println("Connection from " + clientMachine);
 
         out = new PrintStream(socket.getOutputStream());
-        in = new BufferedReader(new InputStreamReader(
-                socket.getInputStream()));
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         System.out.println("Waiting for client...");
 
     }
 
-
-
     public void run() {
-
-        Robot robot = null; // Declare the robot variable outside the try block
+        Robot robot = null;
 
         try {
             String messageFromClient;
-
             // the loop continues as long as there are messages from the client
             while ((messageFromClient = in.readLine()) != null) {
 
@@ -44,16 +38,21 @@ public class SimpleServer implements Runnable {
                     break;
 
                 } else {
-                    // if client sends a command and the command starts with 'launch' server creates a new robot
-                    // if successful it adds the robot name to to a list
                     if (messageFromClient.toLowerCase().startsWith("launch")) {
                         String[] parts = messageFromClient.split(" ");
                         if (parts.length > 1) {
                             String robotName = parts[1]; // name is the second element
-                            robot = new Robot(robotName); // create new robot object
 
-                            robotNames.add(robotName); // add the robots name to an array list
-                            System.out.println(robotName + " just launched into the game!");
+                            // check if the provided name does not occur twice in the world
+                            if (!robotNames.contains(robotName)) {
+                                robot = new Robot(robotName); // create new robot object
+
+                                robotNames.add(robotName); // add the robots name to an array list
+                                System.out.println(robotName + " just launched into the game!");
+                            } else {
+                                out.println("Sorry, too many of " + robotName+ " in this world");
+                                continue;
+                            }
 
                         } else {
                             // if no name provide inform client about invalid command
