@@ -27,6 +27,7 @@ public class SimpleServer implements Runnable {
     }
 
 
+
     public void run() {
         Robot robot = null; // Declare the robot variable outside the try block
 

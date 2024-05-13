@@ -10,7 +10,7 @@ public class SimpleClient {
 
         Scanner sc = new Scanner(System.in);
         try (
-                Socket socket = new Socket("20.20.10.149", 5000);
+                Socket socket = new Socket("localhost", 5000);
                 PrintStream out = new PrintStream(socket.getOutputStream());
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         ) {
