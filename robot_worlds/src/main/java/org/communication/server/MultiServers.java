@@ -12,6 +12,8 @@ public class MultiServers {
         Scanner sc = new Scanner(System.in);
 
         ServerSocket s = new ServerSocket( SimpleServer.PORT);
+        displayHeader();
+        displayMenu();
         System.out.println("Server running & waiting for client connections.");
 
         World world = World.getInstance();
@@ -46,5 +48,18 @@ public class MultiServers {
                 ex.printStackTrace();
             }
         }
+    }
+
+    public static void displayHeader(){
+        System.out.println("\n**********************************************");
+        System.out.println("       ### Welcome to Robot World ###");
+        System.out.println("**********************************************");
+    }
+
+    public static void displayMenu(){
+        System.out.println("\nWorld Commands");
+        System.out.println("'quit' - Disconnects all robots and ends the world ");
+        System.out.println("'robots' - Lists all robots including the robot's name and state");
+        System.out.println("'dump' - Displays a representation of the worlds state\n");
     }
 }

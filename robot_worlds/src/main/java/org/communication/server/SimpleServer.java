@@ -24,8 +24,7 @@ public class SimpleServer implements Runnable {
         in = new BufferedReader(new InputStreamReader(
                 socket.getInputStream()));
         System.out.println("Waiting for client...");
-        displayHeader();
-        displayMenu();
+
     }
 
 
@@ -93,18 +92,7 @@ public class SimpleServer implements Runnable {
             System.out.println(printObstacle);
         }
     }
-    public static void displayHeader(){
-        System.out.println("\n**********************************************");
-        System.out.println("       ### Welcome to Robot World ###");
-        System.out.println("**********************************************");
-    }
 
-    public static void displayMenu(){
-        System.out.println("\nWorld Commands");
-        System.out.println("'quit' - Disconnects all robots and ends the world ");
-        System.out.println("'robots' - Lists all robots including the robot's name and state");
-        System.out.println("'dump' - Displays a representation of the worlds state\n");
-    }
 
     public static void worldState(){
         System.out.println("Robot World is empty and the moment!!!");
