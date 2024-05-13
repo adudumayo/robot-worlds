@@ -68,6 +68,4 @@ public class SimpleClient {
         System.out.println("Shield strength : <MAXIMUM>");
         System.out.println("Shots           : <MAXIMUM>\n");
     }
-
-
 }
