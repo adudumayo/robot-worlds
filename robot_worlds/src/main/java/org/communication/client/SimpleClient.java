@@ -24,10 +24,10 @@ public class SimpleClient {
                 String userInput = sc.nextLine().toLowerCase();
 
                 // check if user wants to quit
-                if (userInput.equals("quit") || userInput.equals("off")){
+                if (userInput.equals("quit") || userInput.equals("off")) {
                     System.exit(0);
-                }else if (userInput.equals("look")){
-                    listObstacles();
+//                }else if (userInput.equals("look")){
+//                    listObstacles();
                 }else if(userInput.equals("state")){
                     robotState();
                     continue;

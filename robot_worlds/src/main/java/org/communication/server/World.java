@@ -9,6 +9,7 @@ public class World {
     private static World instance;
     private Obstacle obstacle;
     public ArrayList<Obstacle> obstacles = new ArrayList<>();
+    public ArrayList<Obstacle> obstaclesLook = new ArrayList<>();
 
 
     private World() {
@@ -16,6 +17,16 @@ public class World {
 //        addObstacle(new Obstacle(-100, 100)); // Example coordinates
 //        addObstacle(new Obstacle(10, 10));
         this.obstacle = new Obstacle(-100,100);
+        obstacles.add(obstacle);
+        this.obstacle = new Obstacle(0, 100);
+        obstacles.add(obstacle);
+        this.obstacle = new Obstacle(0, 150);
+        obstacles.add(obstacle);
+        this.obstacle = new Obstacle(100, 0);
+        obstacles.add(obstacle);
+        this.obstacle = new Obstacle(0, -100);
+        obstacles.add(obstacle);
+        this.obstacle = new Obstacle(-100, 0);
         obstacles.add(obstacle);
     }
 
@@ -40,6 +51,7 @@ public class World {
             // Check if the position (x, y) is within the obstacle's area
             if (x >= obstacle.getX() && x <= obstacle.getX() + 4 &&
                     y >= obstacle.getY() && y <= obstacle.getY() + 4) {
+                obstaclesLook.add(new Obstacle(obstacle.getX(),obstacle.getY()));
                 return true; // Position is blocked by an obstacle
             }
         }

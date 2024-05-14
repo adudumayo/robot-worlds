@@ -14,6 +14,7 @@ public class SimpleServer implements Runnable {
     private final PrintStream out;
     private final String clientMachine;
     private static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
+    private static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "left", "right")); //ArrayList to store robots valid commands
 
 
     public SimpleServer(Socket socket) throws IOException {
@@ -49,6 +50,8 @@ public class SimpleServer implements Runnable {
 
                                 robotNames.add(robotName); // add the robots name to an array list
                                 System.out.println(robotName + " just launched into the game!");
+//                                String lookResult = robot.look();
+//                                out.println(lookResult);
                             } else {
                                 out.println("Sorry, too many of " + robotName+ " in this world");
                                 continue;
@@ -59,15 +62,32 @@ public class SimpleServer implements Runnable {
                             out.println("Invalid command. Please provide a name for the robot.");
                             continue; // Skip the rest of the loop iteration
                         }
+
                     } else {
                         if (robot == null) {
                             out.println("No robot has been launched. Please launch a robot first.");
                             continue; // Skip the rest of the loop iteration
                         }
-                        // create a command object
-                        Command command = Command.create(messageFromClient);
-                        // execute the command
-                        robot.handleCommand(command);
+                        String[] messageParts = messageFromClient.split(" ");
+                        if (validCommands.contains(messageParts[0]) &&  !messageParts[0].equals("look")){
+                            // create a command object
+                            Command command = Command.create(messageFromClient);
+                            // execute the command
+                            robot.handleCommand(command);
+                        }else if(messageParts[0].equals("look")){
+                            ArrayList<String> lookResult = robot.look();
+
+                            out.println(lookResult.get(0));
+                            continue;
+
+                        }
+                        else{
+                            String invalidCommand = "Sorry, I did not understand '" + messageFromClient + "'.";
+                            out.println(invalidCommand);
+                            continue;
+                        }
+
+
                     }
                 }
                 out.println(robot != null ? robot.toString() : "No robot is available.");

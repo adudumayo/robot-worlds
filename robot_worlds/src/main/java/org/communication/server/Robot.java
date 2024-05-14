@@ -1,5 +1,7 @@
 package org.communication.server;
 
+import java.util.ArrayList;
+
 public class Robot {
     private final Position TOP_LEFT = new Position(-200,200);
     private final Position BOTTOM_RIGHT = new Position(200,-200);
@@ -11,6 +13,10 @@ public class Robot {
     private String name;
     public boolean positionCheck;
     public boolean pathCheck;
+    public ArrayList<String> obstaclesNorth = new ArrayList<>();
+    public ArrayList<String> obstaclesEast = new ArrayList<>();
+    public ArrayList<String> obstaclesSouth = new ArrayList<>();
+    public ArrayList<String> obstaclesWest = new ArrayList<>();
 
     public Robot(String name) {
         this.name = name;
@@ -39,7 +45,6 @@ public class Robot {
                 break;
         }
     }
-
     public boolean updatePosition(int nrSteps){
         int newX = this.position.getX();
         int newY = this.position.getY();
@@ -69,6 +74,60 @@ public class Robot {
             return true;
         }
         return false;
+    }
+
+
+    public ArrayList<String> look(){
+        World world = World.getInstance();
+
+        if (Direction.NORTH.equals(this.currentDirection) || Direction.UP.equals(this.currentDirection)){
+            pathCheck = world.isPathBlocked(position.getX(),position.getY(),position.getX(), 200);
+
+            if (pathCheck){
+                for (Obstacle obs : world.obstaclesLook){
+                    obstaclesNorth.add(String.format("North Obstacles " + obs.getX() + ", " +  obs.getY() + " (to " +  (obs.getX()+4) + ", " + (obs.getY()+4) +")"));
+                }
+                world.obstaclesLook.clear();
+                return obstaclesNorth;
+            }else {
+                System.out.println("No Obstacles for North");
+            }
+        }else if (Direction.RIGHT.equals(this.currentDirection)){
+            pathCheck = world.isPathBlocked(position.getX(),position.getY(),200, position.getY());
+            if (pathCheck){
+                for (Obstacle obs : world.obstaclesLook){
+                    obstaclesEast.add(String.format("East Obstacles " + obs.getX() + ", " +  obs.getY() + " (to " +  (obs.getX()+4) + ", " + (obs.getY()+4) +")"));
+                }
+                world.obstaclesLook.clear();
+                return obstaclesEast;
+            }else {
+                System.out.println("No Obstacles for EAST");
+            }
+        }else if (Direction.DOWN.equals(this.currentDirection)) {
+            pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), -200);
+            if (pathCheck) {
+                for (Obstacle obs : world.obstaclesLook) {
+                    obstaclesSouth.add(String.format("South Obstacles " + obs.getX() + ", " + obs.getY() + " (to " + (obs.getX() + 4) + ", " + (obs.getY() + 4) + ")"));
+                }
+                world.obstaclesLook.clear();
+                return obstaclesSouth;
+            } else {
+                System.out.println("No Obstacles for EAST");
+            }
+        }
+        else if (Direction.LEFT.equals(this.currentDirection)) {
+            pathCheck = world.isPathBlocked(position.getX(), position.getY(), -200, position.getY());
+            if (pathCheck) {
+                for (Obstacle obs : world.obstaclesLook) {
+                    obstaclesWest.add(String.format("West Obstacles " + obs.getX() + ", " + obs.getY() + " (to " + (obs.getX() + 4) + ", " + (obs.getY() + 4) + ")"));
+                }
+                world.obstaclesLook.clear();
+                return obstaclesWest;
+            } else {
+                System.out.println("No Obstacles for EAST");
+            }
+        }
+        return new ArrayList<>() ;
     }
 
     @Override
