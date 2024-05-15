@@ -28,18 +28,21 @@ public class SimpleClient {
                 }else if(userInput.equals("state") && robotIsLaunched){
                     robotState();
                     continue;
-                }
-                else {
+                } else {
                     out.println(userInput);
                     out.flush();
                 }
 
 //              read and display response from server
                 String serverResponse = in.readLine();
-                if (serverResponse.equals("true")) {
+
+                String[] serverResponseArray = serverResponse.split(" ");
+                String robotStatus = serverResponseArray[serverResponseArray.length - 1]; // the last word on the [] name> Status
+
+                if (robotStatus.equalsIgnoreCase("Ready")) {
                     robotIsLaunched = true;
-                    continue;
                 }
+
                 System.out.println(serverResponse);
             }
 

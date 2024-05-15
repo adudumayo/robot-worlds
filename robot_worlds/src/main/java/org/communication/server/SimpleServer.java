@@ -49,7 +49,6 @@ public class SimpleServer implements Runnable {
 
                                 robotNames.add(robotName); // add the robots name to an array list
                                 System.out.println(robotName + " just launched into the game!");
-                                out.println("true");  // YOU CAN CHECK THE STATE OF YOUR ROBOT NOW
                             } else {
                                 out.println("Sorry, too many of " + robotName+ " in this world");
                                 continue;
@@ -66,7 +65,7 @@ public class SimpleServer implements Runnable {
                         }
 
                         String[] messageParts = messageFromClient.split(" ");
-                        if (validCommands.contains(messageParts[0]) &&  !messageParts[0].equals("look")){
+                        if (validCommands.contains(messageParts[0]) && !messageParts[0].equals("look")){
                             // create a command object
                             Command command = Command.create(messageFromClient);
                             // execute the command
@@ -82,8 +81,6 @@ public class SimpleServer implements Runnable {
                             out.println(invalidCommand);
                             continue;
                         }
-
-
                     }
                 }
                 out.println(robot != null ? robot.toString() : "No robot is available.");
