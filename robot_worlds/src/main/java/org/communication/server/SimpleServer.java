@@ -37,7 +37,6 @@ public class SimpleServer implements Runnable {
                 // if client message equals to quit loop terminates
                 if (messageFromClient.equalsIgnoreCase("quit")) {
                     break;
-
                 } else {
                     if (messageFromClient.toLowerCase().startsWith("launch")) {
                         String[] parts = messageFromClient.split(" ");
@@ -50,24 +49,22 @@ public class SimpleServer implements Runnable {
 
                                 robotNames.add(robotName); // add the robots name to an array list
                                 System.out.println(robotName + " just launched into the game!");
-//                                String lookResult = robot.look();
-//                                out.println(lookResult);
+                                out.println("true");  // YOU CAN CHECK THE STATE OF YOUR ROBOT NOW
                             } else {
                                 out.println("Sorry, too many of " + robotName+ " in this world");
                                 continue;
                             }
-
                         } else {
                             // if no name provide inform client about invalid command
                             out.println("Invalid command. Please provide a name for the robot.");
                             continue; // Skip the rest of the loop iteration
                         }
-
                     } else {
                         if (robot == null) {
                             out.println("No robot has been launched. Please launch a robot first.");
                             continue; // Skip the rest of the loop iteration
                         }
+
                         String[] messageParts = messageFromClient.split(" ");
                         if (validCommands.contains(messageParts[0]) &&  !messageParts[0].equals("look")){
                             // create a command object
@@ -79,7 +76,6 @@ public class SimpleServer implements Runnable {
 
                             out.println(lookResult.get(0));
                             continue;
-
                         }
                         else{
                             String invalidCommand = "Sorry, I did not understand '" + messageFromClient + "'.";
