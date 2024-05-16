@@ -25,6 +25,22 @@ public class SimpleClient extends DisplayHeaders {
             displayHeaderRobot();
             displayRobotCommands();
 
+            String[] robotAttributes = {"name", "type", "shieldStrength", "numOfBullets"};
+
+            Map<String, String> attrInfo = new HashMap<>();
+
+            try (FileWriter robotInfo = new FileWriter("src/main/java/org/communication/client/robotInfo.json")) {
+                for (String field:robotAttributes) {
+                    System.out.printf("Please enter the %s of your robot: ", field);
+                    String attribute = sc.next();
+                    attrInfo.put(field, attribute);
+                }
+                gson.toJson(attrInfo, robotInfo);
+                System.out.println("go check the json");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             //Keep sending and receiving messages util the user decides to quit
             while(true){
                 String userInput = sc.nextLine().toLowerCase();
