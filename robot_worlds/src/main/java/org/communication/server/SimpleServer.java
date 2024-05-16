@@ -5,7 +5,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import com.google.gson.Gson;
-import static org.communication.client.SimpleClient.robotState;
+
 
 public class SimpleServer implements Runnable {
 
@@ -13,7 +13,7 @@ public class SimpleServer implements Runnable {
     private final BufferedReader in;
     private final PrintStream out;
     private final String clientMachine;
-    private static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
+    public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
     private static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "left", "right", "look")); //ArrayList to store robots valid commands
     private final Gson gson = new Gson();
 
@@ -22,7 +22,6 @@ public class SimpleServer implements Runnable {
 
         out = new PrintStream(socket.getOutputStream());
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        System.out.println("Waiting for client...");
 
     }
 
@@ -105,24 +104,5 @@ public class SimpleServer implements Runnable {
         } catch(IOException ex) {}
     }
 
-    public static void listObstacles(){
-        World world = World.getInstance();
-        for (Obstacle obs : world.obstacles){
-            String printObstacle =String.format("There are some obstacles:\n- At position " + obs.getX() + ", " +  obs.getY() + " (to " +  (obs.getX()+4) + ", " + (obs.getY()+4) +")");
-            System.out.println(printObstacle);
-        }
-    }
-
-    public static void worldState(){
-        System.out.println("Robot World is empty and the moment!!!");
-    }
-
-    public static void listRobots(){
-        System.out.println("   ***List of Robots*** ");
-        for (String robotName : robotNames){
-            System.out.println("Robot name      : " + "<" + robotName.toUpperCase() + ">");
-            robotState();
-        }
-    }
 
 }
