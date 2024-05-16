@@ -6,6 +6,7 @@ import java.util.Scanner;
 import static org.communication.server.SimpleServer.listRobots;
 import static org.communication.server.SimpleServer.worldState;
 
+
 public class MultiServers {
 
     public static void main(String[] args) throws ClassNotFoundException, IOException {
@@ -17,7 +18,6 @@ public class MultiServers {
         System.out.println("Server running & waiting for client connections.");
 
         World world = World.getInstance();
-
 
         // Thread for handling user input
         Thread userInputThread = new Thread(() -> {

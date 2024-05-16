@@ -3,12 +3,16 @@ package org.communication.client;
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class SimpleClient {
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
 
         Scanner sc = new Scanner(System.in);
+        Gson gson = new Gson();
         try (
                 Socket socket = new Socket("localhost", 5000);
                 PrintStream out = new PrintStream(socket.getOutputStream());
@@ -32,6 +36,18 @@ public class SimpleClient {
                     out.println(userInput);
                     out.flush();
                 }
+                // Read and display response from server
+                String serverResponse = in.readLine();
+
+                // If the response is a JSON array, deserialize and print it
+                if(userInput.equalsIgnoreCase("look")) {
+                    List<String> lookResults = gson.fromJson(serverResponse, new TypeToken<List<String>>(){}.getType());
+                    for (String result : lookResults) {
+                        System.out.println(result);
+                    }
+                } else{
+                        System.out.println(serverResponse);
+                    }
 
 //              read and display response from server
                 String serverResponse = in.readLine();
@@ -45,7 +61,6 @@ public class SimpleClient {
 
                 System.out.println(serverResponse);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

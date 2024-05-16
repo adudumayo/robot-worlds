@@ -17,6 +17,7 @@ public class Robot {
     public ArrayList<String> obstaclesEast = new ArrayList<>();
     public ArrayList<String> obstaclesSouth = new ArrayList<>();
     public ArrayList<String> obstaclesWest = new ArrayList<>();
+    ArrayList<String> allObstacles = new ArrayList<>();
 
     public Robot(String name) {
         this.name = name;
@@ -76,58 +77,73 @@ public class Robot {
         return false;
     }
 
-
-    public ArrayList<String> look(){
+    public void look() {
         World world = World.getInstance();
+        obstaclesNorth.clear();
+        obstaclesEast.clear();
+        obstaclesSouth.clear();
+        obstaclesWest.clear();
 
-        if (Direction.NORTH.equals(this.currentDirection) || Direction.UP.equals(this.currentDirection)){
-            pathCheck = world.isPathBlocked(position.getX(),position.getY(),position.getX(), 200);
+        // Check North direction
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), 200);
+        if (pathCheck) {
+            for (Obstacle obs : world.obstaclesLook) {
+                obstaclesNorth.add(String.format("North Obstacle at (%d, %d) to (%d, %d)",
+                        obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
 
-            if (pathCheck){
-                for (Obstacle obs : world.obstaclesLook){
-                    obstaclesNorth.add(String.format("North Obstacles " + obs.getX() + ", " +  obs.getY() + " (to " +  (obs.getX()+4) + ", " + (obs.getY()+4) +")"));
-                }
-                world.obstaclesLook.clear();
-                return obstaclesNorth;
-            }else {
-                System.out.println("No Obstacles for North");
             }
-        }else if (Direction.RIGHT.equals(this.currentDirection)){
-            pathCheck = world.isPathBlocked(position.getX(),position.getY(),200, position.getY());
-            if (pathCheck){
-                for (Obstacle obs : world.obstaclesLook){
-                    obstaclesEast.add(String.format("East Obstacles " + obs.getX() + ", " +  obs.getY() + " (to " +  (obs.getX()+4) + ", " + (obs.getY()+4) +")"));
-                }
-                world.obstaclesLook.clear();
-                return obstaclesEast;
-            }else {
-                System.out.println("No Obstacles for EAST");
-            }
-        }else if (Direction.DOWN.equals(this.currentDirection)) {
-            pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), -200);
-            if (pathCheck) {
-                for (Obstacle obs : world.obstaclesLook) {
-                    obstaclesSouth.add(String.format("South Obstacles " + obs.getX() + ", " + obs.getY() + " (to " + (obs.getX() + 4) + ", " + (obs.getY() + 4) + ")"));
-                }
-                world.obstaclesLook.clear();
-                return obstaclesSouth;
-            } else {
-                System.out.println("No Obstacles for EAST");
-            }
+        } else {
+            obstaclesNorth.add("No Obstacles for North");
         }
-        else if (Direction.LEFT.equals(this.currentDirection)) {
-            pathCheck = world.isPathBlocked(position.getX(), position.getY(), -200, position.getY());
-            if (pathCheck) {
-                for (Obstacle obs : world.obstaclesLook) {
-                    obstaclesWest.add(String.format("West Obstacles " + obs.getX() + ", " + obs.getY() + " (to " + (obs.getX() + 4) + ", " + (obs.getY() + 4) + ")"));
-                }
-                world.obstaclesLook.clear();
-                return obstaclesWest;
-            } else {
-                System.out.println("No Obstacles for EAST");
+        world.obstaclesLook.clear();
+
+        // Check East direction
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), 200, position.getY());
+        if (pathCheck) {
+            for (Obstacle obs : world.obstaclesLook) {
+                obstaclesEast.add(String.format("East Obstacle at (%d, %d) to (%d, %d)",
+                        obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
             }
+        } else {
+            obstaclesEast.add("No Obstacles for East");
+
         }
-        return new ArrayList<>() ;
+        world.obstaclesLook.clear();
+
+        // Check South direction
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), -200);
+        if (pathCheck) {
+            for (Obstacle obs : world.obstaclesLook) {
+                obstaclesSouth.add(String.format("South Obstacle at (%d, %d) to (%d, %d)",
+                        obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
+            }
+        } else {
+            obstaclesSouth.add("No Obstacles for South");
+        }
+        world.obstaclesLook.clear();
+
+        // Check West direction
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), -200, position.getY());
+        if (pathCheck) {
+            for (Obstacle obs : world.obstaclesLook) {
+                obstaclesWest.add(String.format("West Obstacle at (%d, %d) to (%d, %d)",
+                        obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
+            }
+        } else {
+            obstaclesWest.add("No Obstacles for West");
+        }
+        world.obstaclesLook.clear();
+
+        // Combine all obstacles into a single list to return
+        allObstacles.addAll(obstaclesNorth);
+        allObstacles.addAll(obstaclesEast);
+        allObstacles.addAll(obstaclesSouth);
+        allObstacles.addAll(obstaclesWest);
+
+    }
+
+    public ArrayList<String> displayObstaclesForLook(){
+        return allObstacles;
     }
 
     @Override
