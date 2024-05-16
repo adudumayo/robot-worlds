@@ -21,18 +21,19 @@ public class SimpleClient {
             displayHeaderRobot();
             displayRobotCommands();
 
-            boolean robotIsLaunched = false;
-
             //Keep sending and receiving messages util the user decides to quit
             while(true){
                 String userInput = sc.nextLine().toLowerCase();
 
+                // check if user wants to quit
                 if (userInput.equals("quit") || userInput.equals("off")) {
                     System.exit(0);
-                }else if(userInput.equals("state") && robotIsLaunched){
+//
+                }else if(userInput.equals("state")){
                     robotState();
                     continue;
-                } else {
+                }
+                else {
                     out.println(userInput);
                     out.flush();
                 }
@@ -49,17 +50,6 @@ public class SimpleClient {
                         System.out.println(serverResponse);
                     }
 
-//              read and display response from server
-                String serverResponse = in.readLine();
-
-                String[] serverResponseArray = serverResponse.split(" ");
-                String robotStatus = serverResponseArray[serverResponseArray.length - 1]; // the last word on the [] name> Status
-
-                if (robotStatus.equalsIgnoreCase("Ready")) {
-                    robotIsLaunched = true;
-                }
-
-                System.out.println(serverResponse);
             }
         } catch (IOException e) {
             e.printStackTrace();
