@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import com.google.gson.Gson;
 import static org.communication.client.SimpleClient.robotState;
 
 public class SimpleServer implements Runnable {
@@ -14,8 +14,8 @@ public class SimpleServer implements Runnable {
     private final PrintStream out;
     private final String clientMachine;
     private static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
-    private static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "left", "right")); //ArrayList to store robots valid commands
-
+    private static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "left", "right", "look")); //ArrayList to store robots valid commands
+    private final Gson gson = new Gson();
 
     public SimpleServer(Socket socket) throws IOException {
         clientMachine = socket.getInetAddress().getHostName();
@@ -50,8 +50,7 @@ public class SimpleServer implements Runnable {
 
                                 robotNames.add(robotName); // add the robots name to an array list
                                 System.out.println(robotName + " just launched into the game!");
-//                                String lookResult = robot.look();
-//                                out.println(lookResult);
+//
                             } else {
                                 out.println("Sorry, too many of " + robotName+ " in this world");
                                 continue;
@@ -68,29 +67,31 @@ public class SimpleServer implements Runnable {
                             out.println("No robot has been launched. Please launch a robot first.");
                             continue; // Skip the rest of the loop iteration
                         }
+
                         String[] messageParts = messageFromClient.split(" ");
-                        if (validCommands.contains(messageParts[0]) &&  !messageParts[0].equals("look")){
-                            // create a command object
+                        if (validCommands.contains(messageParts[0])){
+
                             Command command = Command.create(messageFromClient);
                             // execute the command
                             robot.handleCommand(command);
-                        }else if(messageParts[0].equals("look")){
-                            ArrayList<String> lookResult = robot.look();
 
-                            out.println(lookResult.get(0));
-                            continue;
-
-                        }
-                        else{
+                       }else{
                             String invalidCommand = "Sorry, I did not understand '" + messageFromClient + "'.";
                             out.println(invalidCommand);
                             continue;
                         }
-
-
                     }
                 }
-                out.println(robot != null ? robot.toString() : "No robot is available.");
+                if (robot != null && messageFromClient.contains("look")){
+
+                    ArrayList<String> lookResult = robot.displayObstaclesForLook();
+                    String jsonResponse = gson.toJson(lookResult);
+                    lookResult.clear();
+                    out.println(jsonResponse);
+
+                }else {
+                    out.println(robot);
+                }
             }
         } catch (IOException ex) {
             System.out.println("Shutting down single client server");
@@ -111,7 +112,6 @@ public class SimpleServer implements Runnable {
             System.out.println(printObstacle);
         }
     }
-
 
     public static void worldState(){
         System.out.println("Robot World is empty and the moment!!!");
