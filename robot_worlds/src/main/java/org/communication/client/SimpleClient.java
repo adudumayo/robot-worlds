@@ -7,6 +7,9 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.communication.server.DisplayHeaders;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleClient extends DisplayHeaders {
     public static void main(String[] args) {
