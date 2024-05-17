@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 
 public class SimpleServer implements Runnable {
 
-    public static final int PORT = 5000;
+    public static final int PORT = 8080;
     private final BufferedReader in;
     private final PrintStream out;
     private final String clientMachine;
@@ -49,11 +49,14 @@ public class SimpleServer implements Runnable {
 
                                 robotNames.add(robotName); // add the robots name to an array list
                                 System.out.println(robotName + " just launched into the game!");
+//                                System.out.println("Welcome " + robotName + "!");
 //
                             } else {
                                 out.println("Sorry, too many of " + robotName+ " in this world");
                                 continue;
                             }
+//                            out.println("Welcome " + robotName + "!");
+
 
                         } else {
                             // if no name provide inform client about invalid command
