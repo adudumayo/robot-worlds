@@ -4,108 +4,164 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.*;
+import org.communication.client.Request;
 
 
 public class SimpleServer implements Runnable {
 
-    public static final int PORT = 8080;
+    public static final int PORT = 8081;
     private final BufferedReader in;
     private final PrintStream out;
-    private final String clientMachine;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
-    private static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "left", "right", "look")); //ArrayList to store robots valid commands
-    private final Gson gson = new Gson();
+    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn")); //ArrayList to store robots valid commands
+    public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
+    Gson gson = new Gson();
+    Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
 
     public SimpleServer(Socket socket) throws IOException {
-        clientMachine = socket.getInetAddress().getHostName();
-
         out = new PrintStream(socket.getOutputStream());
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
     }
 
     public void run() {
         Robot robot = null;
+        String messageFromClient;
 
-        try {
-            String messageFromClient;
-            // the loop continues as long as there are messages from the client
+        try{
             while ((messageFromClient = in.readLine()) != null) {
+                System.out.println(messageFromClient);
 
-                // if client message equals to quit loop terminates
-                if (messageFromClient.equalsIgnoreCase("quit")) {
-                    break;
+                try{
+                    Request request = gson.fromJson(messageFromClient, Request.class);
+                    if (request.getCommand().equals("launch")){
+                        String robotName = request.getRobotName();
+                        if (!robotNames.contains(robotName)){
+                            robot = new Robot(robotName);
+                            request.setRobot(robotName);
+                            robotNames.add(robotName);
+                            State state = new State();
+                            int numShield = Integer.parseInt(request.getArguments()[1]);
+                            int numShots = Integer.parseInt(request.getArguments()[2]);
+                            state.setShields(numShield);
+                            state.setShots(numShots);
+                            robot.setState(state);
 
-                } else {
-                    if (messageFromClient.toLowerCase().startsWith("launch")) {
-                        String[] parts = messageFromClient.split(" ");
-                        if (parts.length > 1) {
-                            String robotName = parts[1]; // name is the second element
+                            System.out.println(request.getRobotName() + " just launched into the world");
+                            out.println(sendResponsetoClient(robot, gsonPretty));
+                        }else {
+                            errorResponse(robot, gsonPretty, "ERROR", "Too many of you in this world");
+                        }
 
-                            // check if the provided name does not occur twice in the world
-                            if (!robotNames.contains(robotName)) {
-                                robot = new Robot(robotName); // create new robot object
+                    }else if (validCommands.contains(request.getCommand())){
+                        try{
 
-                                robotNames.add(robotName); // add the robots name to an array list
-                                System.out.println(robotName + " just launched into the game!");
-//                                System.out.println("Welcome " + robotName + "!");
-//
-                            } else {
-                                out.println("Sorry, too many of " + robotName+ " in this world");
-                                continue;
+                            if (!turns.contains(request.getArguments()[0])){
+                                String newRobotCommand = request.getCommand() + " " + request.getArguments()[0];
+                                Command command = Command.create(newRobotCommand);
+                                robot.handleCommand(command);
+                                String jsonToClient = successfulResponse(robot, gsonPretty, "OK");
+                                out.println(jsonToClient);
+
+                            }else if (turns.contains(request.getArguments()[0])) {
+                                String newRobotCommand = request.getArguments()[0];
+                                Command command = Command.create(newRobotCommand);
+                                robot.handleCommand(command);
+                                String jsonToClient = successfulResponse(robot, gsonPretty, "OK");
+                                out.println(jsonToClient);
+                            }else{
+                                String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
+                                out.println(errorResponse);
                             }
-//                            out.println("Welcome " + robotName + "!");
 
+                        }catch (IllegalArgumentException e){
+                            String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
+                            out.println(errorResponse);
 
-                        } else {
-                            // if no name provide inform client about invalid command
-                            out.println("Invalid command. Please provide a name for the robot.");
-                            continue; // Skip the rest of the loop iteration
                         }
 
-                    } else {
-                        if (robot == null) {
-                            out.println("No robot has been launched. Please launch a robot first.");
-                            continue; // Skip the rest of the loop iteration
-                        }
 
-                        String[] messageParts = messageFromClient.split(" ");
-                        if (validCommands.contains(messageParts[0])){
-
-                            Command command = Command.create(messageFromClient);
-                            // execute the command
-                            robot.handleCommand(command);
-
-                       }else{
-                            String invalidCommand = "Sorry, I did not understand '" + messageFromClient + "'.";
-                            out.println(invalidCommand);
-                            continue;
-                        }
+                    }else {
+                        String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
+                        out.println(errorResponse);
                     }
-                }
-                if (robot != null && messageFromClient.contains("look")){
 
-                    ArrayList<String> lookResult = robot.displayObstaclesForLook();
-                    String jsonResponse = gson.toJson(lookResult);
-                    lookResult.clear();
-                    out.println(jsonResponse);
 
-                }else {
-                    out.println(robot);
+                }catch (JsonSyntaxException e){
+                    System.out.println("invalid json received!");
                 }
+
             }
-        } catch (IOException ex) {
-            System.out.println("Shutting down single client server");
-        } finally {
-            closeQuietly();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
         }
+
+
+        private String sendResponsetoClient(Robot robot, Gson gsonPretty){
+            Response response = new Response();
+            response.setResult("OK");
+            // create and set the data map
+            Map<String, Object> data = new HashMap<>();
+            data.put("position", robot.coordinatePosition());
+            data.put("visibility", "10");
+            data.put("reload", "10");
+            data.put("repair", "15");
+            data.put("shields", robot.getState().getShields());
+            response.setData(data);
+
+            // Create and set the state object
+            State state = new State();
+//            robot.setState(state);
+            state.setPosition(robot.coordinatePosition());
+            state.setDirection(robot.getCurrentDirection());
+            state.setShields(5);
+            state.setShots(3);
+
+            state.setStatus("NORMAL");
+            response.setState(state);
+
+            return gsonPretty.toJson(response);
+        }
+
+        private String errorResponse(Robot robot, Gson gsonPretty, String setResult, String message){
+            Response response = new Response();
+            response.setResult(setResult);
+            Map<String, Object> data = new HashMap<>();
+            data.put("message", message);
+            response.setData(data);
+            return gsonPretty.toJson(response);
+
+        }
+        private String successfulResponse(Robot robot, Gson gsonPretty, String setResult){
+            Response response = new Response();
+            response.setResult(setResult);
+            Map<String, Object> data = new HashMap<>();
+            data.put("message", robot.getStatus());
+            response.setData(data);
+
+            // Create and set the state object
+            State state = new State();
+            state.setPosition(robot.coordinatePosition());
+            state.setDirection(robot.getCurrentDirection());
+            state.setShields(3);
+            state.setShots(5);
+            state.setStatus("NORMAL");
+            response.setState(state);
+
+            return gsonPretty.toJson(response);
+
+        }
+
+
+
+
     }
 
-    private void closeQuietly() {
-        try { in.close(); out.close();
-        } catch(IOException ex) {}
-    }
 
 
-}

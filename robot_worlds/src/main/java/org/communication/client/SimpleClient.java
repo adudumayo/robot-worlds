@@ -2,95 +2,82 @@ package org.communication.client;
 
 import java.net.*;
 import java.io.*;
-import java.util.Scanner;
-import java.util.List;
-import com.google.gson.Gson;
+import java.util.*;
+
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.communication.server.DisplayHeaders;
+import org.communication.server.Response;
+
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
+import static org.communication.server.SimpleServer.validCommands;
 public class SimpleClient extends DisplayHeaders {
-    public static void main(String[] args) {
 
+    public static void main(String[] args) throws IOException {
+
+        boolean keepRunning = true;
 
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
+        ArrayList<String> robotModels = new ArrayList<>(Arrays.asList("warpath","demolisher","reaper", "venom", "blaze"));
+
         try (
-                Socket socket = new Socket("localhost", 8080);
+                Socket socket = new Socket("localhost", 8081);
                 PrintStream out = new PrintStream(socket.getOutputStream());
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
         ) {
             displayHeaderRobot();
             displayRobotCommands();
+            displayRobotModels();
 
-//            String[] robotAttributes = {"name", "type", "shieldStrength", "numOfBullets"};
-//
-//            Map<String, String> attrInfo = new HashMap<>();
-//
-//            try (FileWriter robotInfo = new FileWriter("src/main/java/org/communication/client/robotInfo.json")) {
-//                for (String field:robotAttributes) {
-//                    System.out.printf("Please enter the %s of your robot: ", field);
-//                    String attribute = sc.next();
-//                    attrInfo.put(field, attribute);
-//                }
-//                gson.toJson(attrInfo, robotInfo);
-//                System.out.println("go check the json");
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-
-            //Keep sending and receiving messages util the user decides to quit
-            while(true){
-                String userInput = sc.nextLine().toLowerCase();
-
-                // check if user wants to quit
-                if (userInput.equals("quit") || userInput.equals("off")) {
-                    System.exit(0);
-//
-                }else if(userInput.equals("state")){
-                    robotState();
-                    continue;
-                }
-                else {
-                    out.println(userInput);
-                    out.flush();
-                }
-
-                String robotName = "";
-                if (userInput.toLowerCase().startsWith("launch")) {
+            Thread inputThread = new Thread(() -> {
+                while (keepRunning) {
+                    String userInput = sc.nextLine().toLowerCase();
                     String[] parts = userInput.split(" ");
-                    if (parts.length > 1) {
-                        robotName = parts[1];
+                    if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && (parts.length == 3)) {
+                        String[] stringArgs = {parts[1], "10", "10"};
+                        Request request = new Request(parts[2], parts[0], stringArgs);
+                        out.println(gson.toJson(request));
+                        out.flush();
+
+                    }else if(validCommands.contains(parts[0])){
+                        if (parts.length > 1){
+                            Request request = new Request();
+                            request.setCommand(parts[0]);
+                            request.setArguments(new String[]{parts[1]});
+                            String jsonRequest = gson.toJson(request);
+                            out.println(jsonRequest);
+                            out.flush();
+
+                        }else {
+                            Request request = new Request();
+                            request.setCommand(parts[0]);
+                            String jsonRequest = gson.toJson(request);
+                            out.println(jsonRequest);
+                            out.flush();
+                        }
+                    }else{
+                        System.out.println("Invalid Command, try again!");
+
                     }
-                }// name is the second element
-
-                        // Read and display response from server
-                String serverResponse = in.readLine();
-
-                if (serverResponse.equals("[0,0] " + robotName + "> Ready")) {
-                    System.out.println("Welcome " + robotName);
                 }
+            });
+            inputThread.start();
 
-                // If the response is a JSON array, deserialize and print it
-                if(userInput.equalsIgnoreCase("look")) {
-                    List<String> lookResults = gson.fromJson(serverResponse, new TypeToken<List<String>>(){}.getType());
-                    for (String result : lookResults) {
-                        System.out.println(result);
-                    }
-                    System.out.println("\nWhat must i do next?");
-                } else{
-                        System.out.println(serverResponse);
-                    System.out.println("\nWhat must i do next?");
-
-                    }
-
+            while (keepRunning) {
+                // Read and display response from server
+                String serverResponse = in.readLine();
+                System.out.println(serverResponse);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+
         }
+
     }
 
-
-}

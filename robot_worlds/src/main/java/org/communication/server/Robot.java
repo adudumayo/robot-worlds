@@ -7,6 +7,11 @@ public class Robot {
     private final Position BOTTOM_RIGHT = new Position(200,-200);
     public static final Position CENTRE = new Position(0,0);
 
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    private State state;
     private Position position;
     private Direction currentDirection;
     private String status;
@@ -19,11 +24,20 @@ public class Robot {
     public ArrayList<String> obstaclesWest = new ArrayList<>();
     ArrayList<String> allObstacles = new ArrayList<>();
 
+    public Direction getCurrentDirection() {
+        return currentDirection;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
     public Robot(String name) {
         this.name = name;
         this.status = "Ready";
         this.position = CENTRE;
         this.currentDirection = Direction.NORTH;
+
     }
 
     public boolean handleCommand(Command command) {
@@ -152,12 +166,21 @@ public class Robot {
                 + this.name + "> " + this.status;
     }
 
+    public String coordinatePosition(){
+        return "[" + this.position.getX() + "," + this.position.getY() + "]";
+    }
+
+
     public void setStatus(String status) {
         this.status = status;
     }
 
     public String getName() {
         return name;
+    }
+
+    public State getState() {
+        return state;
     }
 
 }

@@ -5,13 +5,13 @@ public class ForwardCommand extends Command {
     public boolean execute(Robot target) {
         int nrSteps = Integer.parseInt(getArgument());
         if (target.updatePosition(nrSteps)){
-            target.setStatus("Moved forward by "+nrSteps+" steps.");
+            target.setStatus("Done");
         } else if(target.positionCheck) {
-            target.setStatus("Sorry, there is an obstacle in way!");
+            target.setStatus("Obstructed!");
         } else if(target.pathCheck) {
-            target.setStatus("Sorry, there is an obstacle in way!");
+            target.setStatus("Obstructed!");
         }else{
-            target.setStatus("Sorry, I cannot go outside my safe zone.");
+            target.setStatus("At the Edge!");
         }
         return true;
     }
