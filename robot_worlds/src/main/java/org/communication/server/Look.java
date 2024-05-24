@@ -5,6 +5,7 @@ public class Look extends Command{
     @Override
     public boolean execute(Robot target) {
         target.look();
+        System.out.println(target.allObstacles);
         return false;
     }
 

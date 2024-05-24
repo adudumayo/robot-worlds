@@ -3,17 +3,15 @@ package org.communication.server;
 public class State {
     private String position;
     private Direction direction;
-    private int shields;
-    private int shots;
+    private int shields; // number of hits the shield can absorb
+    private int shots;// number of shots left in the gun
     private String status;
 
-//    public State(int shields, int shots){
-//
-//        this.shields = shields;
-//        this.shots = shots;
-//    }
+    public State(int shields, int shots){
 
-
+        this.shields = shields;
+        this.shots = shots;
+    }
 
     // Getter and setter methods
     public String getPosition() {

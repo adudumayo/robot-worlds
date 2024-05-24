@@ -22,6 +22,7 @@ public class Robot {
     public ArrayList<String> obstaclesEast = new ArrayList<>();
     public ArrayList<String> obstaclesSouth = new ArrayList<>();
     public ArrayList<String> obstaclesWest = new ArrayList<>();
+    public ArrayList<Integer> obstacleSteps = new ArrayList<>();
     ArrayList<String> allObstacles = new ArrayList<>();
 
     public Direction getCurrentDirection() {
@@ -104,10 +105,13 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesNorth.add(String.format("North Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
+                obstacleSteps.add(obs.getY());
 
             }
         } else {
             obstaclesNorth.add("No Obstacles for North");
+            obstacleSteps.add(0);
+
         }
         world.obstaclesLook.clear();
 
@@ -117,9 +121,11 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesEast.add(String.format("East Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
+                obstacleSteps.add(obs.getX());
             }
         } else {
             obstaclesEast.add("No Obstacles for East");
+            obstacleSteps.add(0);
 
         }
         world.obstaclesLook.clear();
@@ -130,9 +136,11 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesSouth.add(String.format("South Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
+                obstacleSteps.add(obs.getY());
             }
         } else {
             obstaclesSouth.add("No Obstacles for South");
+            obstacleSteps.add(0);
         }
         world.obstaclesLook.clear();
 
@@ -142,9 +150,11 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesWest.add(String.format("West Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
+                obstacleSteps.add(obs.getX());
             }
         } else {
             obstaclesWest.add("No Obstacles for West");
+            obstacleSteps.add(0);
         }
         world.obstaclesLook.clear();
 
