@@ -66,18 +66,16 @@ public class SimpleClient extends DisplayHeaders {
             });
             inputThread.start();
 
-            while (keepRunning) {
-                // Read and display response from server
-                String serverResponse = in.readLine();
-                System.out.println(serverResponse);
+            while (!in.readLine().equals("quit")) {
+                System.out.println(in.readLine());
             }
-
 
             } catch(IOException e){
                 e.printStackTrace();
+            } catch (NullPointerException i) {
+                System.out.println("The server has stopped");
+                System.exit(0);
             }
-
         }
-
     }
 
