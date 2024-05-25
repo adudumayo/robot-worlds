@@ -13,11 +13,11 @@ import org.communication.client.Request;
 
 public class SimpleServer implements Runnable {
 
-    public static final int PORT = 8081;
+    public static final int PORT = 5001;
     private final BufferedReader in;
     private final PrintStream out;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
-    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn")); //ArrayList to store robots valid commands
+    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state")); //ArrayList to store robots valid commands
     public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
 
     Gson gson = new Gson();
@@ -52,9 +52,8 @@ public class SimpleServer implements Runnable {
                             errorResponse(robot, gsonPretty, "ERROR", "Too many of you in this world");
                         }
 
-                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look")) {
+                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state")) {
                         try {
-
                             if (!turns.contains(request.getArguments()[0])) {
                                 String newRobotCommand = request.getCommand() + " " + request.getArguments()[0];
                                 Command command = Command.create(newRobotCommand);
@@ -63,17 +62,16 @@ public class SimpleServer implements Runnable {
                                 out.println(jsonToClient);
 
                             } else if (turns.contains(request.getArguments()[0])) {
-
                                 String newRobotCommand = request.getArguments()[0];
                                 Command command = Command.create(newRobotCommand);
                                 robot.handleCommand(command);
                                 String jsonToClient = successfulResponse(robot, gsonPretty, "OK", robot.getState().getShields(), robot.getState().getShots());
                                 out.println(jsonToClient);
+
                             } else {
                                 String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
                                 out.println(errorResponse);
                             }
-
 
                         } catch (IllegalArgumentException e) {
                             String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
@@ -81,13 +79,18 @@ public class SimpleServer implements Runnable {
 
                         }
 
-                    }else if (request.getCommand().equals("look") && validCommands.contains("look")){
+                    }else if (request.getCommand().equals("look") && validCommands.contains("look")) {
+
                         String newRobotCommand = request.getCommand();
                         Command command = Command.create(newRobotCommand);
                         robot.handleCommand(command);
+
                         String jsonToClient = successfulLookResponse(robot, gsonPretty, "OK", robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
+                    }else if (request.getCommand().equals("state") && validCommands.contains("state")){
+                        String jsonToClient = sendStateResponseToClient(robot, gsonPretty, robot.getState().getShields(), robot.getState().getShots());
+                        out.println(jsonToClient);
 
 
                     }else {
@@ -95,20 +98,31 @@ public class SimpleServer implements Runnable {
                         out.println(errorResponse);
                     }
 
-
-
                 }catch (JsonSyntaxException e){
                     System.out.println("invalid json received!");
                 }
-
             }
-
             }catch (IOException e){
-                e.printStackTrace();
-            }
+                if (e instanceof SocketException){
+                    System.exit(0);
+                }else {
+                    e.printStackTrace();
+                }
+
 
         }
 
+        }
+
+        private String sendStateResponseToClient(Robot robot, Gson gsonPretty, int shield, int shots){
+            Response response = new Response();
+            // Create and set the state object
+            State state = new State(shield, shots);
+            state.setPosition(robot.coordinatePosition());
+            state.setDirection(robot.getCurrentDirection());
+            response.setState(state);
+            return gsonPretty.toJson(response);
+        }
 
         private String sendResponsetoClient(Robot robot, Gson gsonPretty, int shield, int shots){
             Response response = new Response();
@@ -149,7 +163,7 @@ public class SimpleServer implements Runnable {
             data.put("message", robot.getStatus());
             response.setData(data);
 
-//             Create and set the state object
+            //Create and set the state object
             State state = new State(shield, shots);
             state.setPosition(robot.coordinatePosition());
             state.setDirection(robot.getCurrentDirection());
@@ -162,13 +176,17 @@ public class SimpleServer implements Runnable {
         private String successfulLookResponse(Robot robot, Gson gsonPretty, String setResult, int shield, int shots) {
 
             // Create the response object
+            Map<String, Object> data = new HashMap<>();
             ArrayList<ObstacleType> objects = new ArrayList<>();
             ArrayList<String> directions = new ArrayList<>(Arrays.asList("North", "East", "South", "West"));
             Response response = new Response();
+            System.out.println(robot.obstacleSteps);
+
 
             for (int i = 0; i < robot.obstacleSteps.size(); i++) {
                 int directionIndex = i % directions.size(); // Calculate the index of direction
                 String dir = directions.get(directionIndex);
+
 
                 if (robot.obstacleSteps.get(i) != 0) {
                     ObstacleType obj = new ObstacleType(dir, "obstacle", robot.obstacleSteps.get(i));
@@ -178,7 +196,6 @@ public class SimpleServer implements Runnable {
             response.setResult(setResult);
 
             // Create the data map and populate it
-            Map<String, Object> data = new HashMap<>();
             data.put("message", robot.getStatus());
             data.put("object", objects);
             response.setData(data);
@@ -193,8 +210,6 @@ public class SimpleServer implements Runnable {
             // Convert response to JSON
             return gsonPretty.toJson(response);
         }
-
-
     }
 
 

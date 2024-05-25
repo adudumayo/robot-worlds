@@ -11,9 +11,9 @@ import static org.communication.server.SimpleServer.*;
 
 
 public class MultiServers extends DisplayHeaders {
-
     public static boolean flag;
     public static List<Socket> socketList = new ArrayList<>();
+
 
     public static void main(String[] args) throws ClassNotFoundException, IOException {
         Scanner sc = new Scanner(System.in);
@@ -33,35 +33,34 @@ public class MultiServers extends DisplayHeaders {
             while (true){
                 userInput = sc.nextLine();
                 if (userInput.equals("robots")){
-//                    listRobots();
+                    listRobots();
                     System.out.println();
                 }else if (userInput.equals("dump")){
                     displayObstaclesAndRobots();
                 }else if (userInput.equals("quit")) {
                     flag = true;
-                    System.out.println(socketList.toString());
-                    for (Socket eachSocket: socketList){
-                        PrintStream out = null;
 
-                        try {
-                            out = new PrintStream(eachSocket.getOutputStream());
+                    System.out.println("Game terminated!");
+                    for (Socket eachSocket: socketList) {
+                        try (PrintStream out = new PrintStream(eachSocket.getOutputStream())) {
+                            out.println("quit");
+                            out.flush();
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            e.printStackTrace();
                         }
-                        out.println("quit");
-                        out.flush();
+                    }
 
+                    for (Socket eachSocket : socketList){
                         try {
                             eachSocket.close();
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            e.printStackTrace();
                         }
                     }
                     sc.close();
                     System.exit(0); // Close the server socket when user inputs "quit"
                 }
             }
-
         });
         userInputThread.start();
 
@@ -70,11 +69,9 @@ public class MultiServers extends DisplayHeaders {
                 Socket socket = s.accept();
                 socketList.add(socket);
                 Runnable r = new SimpleServer(socket);
-                Thread task = new Thread(r);
                 if (!flag){
-                    task.start();
+                    new Thread(r).start();
                 }
-
 
             } catch(IOException ex) {
                 ex.printStackTrace();

@@ -28,18 +28,11 @@ public class DisplayHeaders {
         System.out.println("To join the game enter e.g 'launch reaper james'\n");
     }
 
-    public static void robotState(){
-        System.out.println("State           : <READY FOR BATTLE>");
-        System.out.println("Robot type      : <BATTLE BOT>");
-        System.out.println("Shield strength : <MAXIMUM>");
-        System.out.println("Shots           : <MAXIMUM>\n");
-    }
     public static void displayHeader(){
         System.out.println("\n*************************************************");
         System.out.println("  🤖✨ Welcome to the Amazing Robot World! ✨🤖");
         System.out.println("*************************************************");
     }
-
     public static void displayMenu(){
         System.out.println("\nWorld Commands");
         System.out.println("'quit' - Disconnects all robots and ends the world ");
@@ -57,12 +50,11 @@ public class DisplayHeaders {
         System.out.println("Number robots in the world : " + robotNames.size());
     }
 
-//    public static void listRobots(){
-//        System.out.println("   ***List of Robots*** ");
-//        for (String robotName : robotNames){
-//            System.out.println("Robot name      : " + "<" + robotName.toUpperCase() + ">");
-//            robotState();
-//        }
-//    }
+    public static void listRobots(){
+        System.out.println("   ***List of Robots*** ");
+        for (String robotName : robotNames){
+            System.out.println("Robot name      : " + "<" + robotName.toUpperCase() + ">");
+        }
+    }
 
 }

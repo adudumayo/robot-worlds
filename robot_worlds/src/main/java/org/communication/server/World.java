@@ -16,9 +16,9 @@ public class World {
         // Add hardcoded obstacle
 //        addObstacle(new Obstacle(-100, 100)); // Example coordinates
 //        addObstacle(new Obstacle(10, 10));
-
-        this.obstacle = new Obstacle(-100,100);
-        obstacles.add(obstacle);
+//
+//        this.obstacle = new Obstacle(-100,100);
+//        obstacles.add(obstacle);
         // font obstacle
         this.obstacle = new Obstacle(0, 100);
         obstacles.add(obstacle);

@@ -11,6 +11,7 @@ public class State {
 
         this.shields = shields;
         this.shots = shots;
+        this.status = "NORMAL";
     }
 
     // Getter and setter methods

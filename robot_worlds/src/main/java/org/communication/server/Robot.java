@@ -23,6 +23,7 @@ public class Robot {
     public ArrayList<String> obstaclesSouth = new ArrayList<>();
     public ArrayList<String> obstaclesWest = new ArrayList<>();
     public ArrayList<Integer> obstacleSteps = new ArrayList<>();
+
     ArrayList<String> allObstacles = new ArrayList<>();
 
     public Direction getCurrentDirection() {
@@ -35,7 +36,7 @@ public class Robot {
 
     public Robot(String name) {
         this.name = name;
-        this.status = "Ready";
+        this.status = "NORMAL";
         this.position = CENTRE;
         this.currentDirection = Direction.NORTH;
 
@@ -94,6 +95,9 @@ public class Robot {
 
     public void look() {
         World world = World.getInstance();
+
+        allObstacles.clear();
+        obstacleSteps.clear();
         obstaclesNorth.clear();
         obstaclesEast.clear();
         obstaclesSouth.clear();
@@ -105,7 +109,7 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesNorth.add(String.format("North Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(obs.getY());
+                obstacleSteps.add(obs.getY() - position.getY());  // Calculate steps to the obstacle
 
             }
         } else {
@@ -121,7 +125,8 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesEast.add(String.format("East Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(obs.getX());
+                obstacleSteps.add(obs.getX() - position.getX());  // Calculate steps to the obstacle
+
             }
         } else {
             obstaclesEast.add("No Obstacles for East");
@@ -136,11 +141,13 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesSouth.add(String.format("South Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(obs.getY());
+                obstacleSteps.add(position.getY() - obs.getY());  // Calculate steps to the obstacle
+
             }
         } else {
             obstaclesSouth.add("No Obstacles for South");
             obstacleSteps.add(0);
+
         }
         world.obstaclesLook.clear();
 
@@ -150,11 +157,13 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesWest.add(String.format("West Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(obs.getX());
+                obstacleSteps.add(position.getX() - obs.getX());  // Calculate steps to the obstacle
+
             }
         } else {
             obstaclesWest.add("No Obstacles for West");
             obstacleSteps.add(0);
+
         }
         world.obstaclesLook.clear();
 
@@ -163,7 +172,6 @@ public class Robot {
         allObstacles.addAll(obstaclesEast);
         allObstacles.addAll(obstaclesSouth);
         allObstacles.addAll(obstaclesWest);
-
     }
 
     public ArrayList<String> displayObstaclesForLook(){

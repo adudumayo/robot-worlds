@@ -13,17 +13,17 @@ import java.io.Serializable;
 
 import static org.communication.server.SimpleServer.validCommands;
 public class SimpleClient extends DisplayHeaders {
-
+    public static boolean keepRunning = true;
     public static void main(String[] args) throws IOException {
 
-        boolean keepRunning = true;
+
 
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
         ArrayList<String> robotModels = new ArrayList<>(Arrays.asList("warpath","demolisher","reaper", "venom", "blaze"));
 
         try (
-                Socket socket = new Socket("localhost", 8081);
+                Socket socket = new Socket("localhost", 5001);
                 PrintStream out = new PrintStream(socket.getOutputStream());
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -31,6 +31,7 @@ public class SimpleClient extends DisplayHeaders {
             displayHeaderRobot();
             displayRobotCommands();
             displayRobotModels();
+
 
             Thread inputThread = new Thread(() -> {
                 while (keepRunning) {
@@ -65,17 +66,24 @@ public class SimpleClient extends DisplayHeaders {
                 }
             });
             inputThread.start();
-
-            while (!in.readLine().equals("quit")) {
-                System.out.println(in.readLine());
+            String serverResponse;
+            while ((serverResponse = in.readLine()) != null) {
+                if (serverResponse.equals("quit")){
+                    System.out.println("You're out, bye!");
+                    keepRunning = false;
+                    break;
+                }
+                System.out.println(serverResponse);
             }
+
+            inputThread.interrupt();
 
             } catch(IOException e){
                 e.printStackTrace();
-            } catch (NullPointerException i) {
-                System.out.println("The server has stopped");
-                System.exit(0);
-            }
+            }finally {
+            sc.close();
+        }
+
         }
     }
 
