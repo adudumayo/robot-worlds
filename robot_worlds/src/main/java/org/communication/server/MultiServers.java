@@ -33,8 +33,13 @@ public class MultiServers extends DisplayHeaders {
             while (true){
                 userInput = sc.nextLine();
                 if (userInput.equals("robots")){
-                    listRobots();
-                    System.out.println();
+                    if (robotObjects.isEmpty()){
+                        System.out.println("Sorry there isn't any robots in the world at the moment!");
+                    }else{
+                        listRobots();
+                        System.out.println();
+                    }
+
                 }else if (userInput.equals("dump")){
                     displayObstaclesAndRobots();
                 }else if (userInput.equals("quit")) {

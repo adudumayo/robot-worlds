@@ -19,7 +19,7 @@ public class SimpleServer implements Runnable {
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
     public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state")); //ArrayList to store robots valid commands
     public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
-
+    public static ArrayList<Robot> robotObjects = new ArrayList<>();
     Gson gson = new Gson();
     Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
 
@@ -48,6 +48,7 @@ public class SimpleServer implements Runnable {
                             int shots = Integer.parseInt(request.getArguments()[2]);
                             System.out.println(request.getRobotName() + " just launched into the world");
                             out.println(sendResponsetoClient(robot, gsonPretty, shield, shots));
+                            robotObjects.add(robot);
                         }else {
                             errorResponse(robot, gsonPretty, "ERROR", "Too many of you in this world");
                         }

@@ -16,8 +16,6 @@ public class SimpleClient extends DisplayHeaders {
     public static boolean keepRunning = true;
     public static void main(String[] args) throws IOException {
 
-
-
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
         ArrayList<String> robotModels = new ArrayList<>(Arrays.asList("warpath","demolisher","reaper", "venom", "blaze"));

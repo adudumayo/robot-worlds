@@ -1,6 +1,7 @@
 package org.communication.server;
 
 import static org.communication.server.SimpleServer.robotNames;
+import static org.communication.server.SimpleServer.robotObjects;
 
 public class DisplayHeaders {
 
@@ -51,9 +52,15 @@ public class DisplayHeaders {
     }
 
     public static void listRobots(){
-        System.out.println("   ***List of Robots*** ");
-        for (String robotName : robotNames){
-            System.out.println("Robot name      : " + "<" + robotName.toUpperCase() + ">");
+        System.out.println("  ***List of Robots*** ");
+        for (Robot robot : robotObjects){
+            System.out.println("Name          : <" + robot.getName().toUpperCase() + ">\n" +
+                               "Position      : <" + robot.coordinatePosition() + ">\n" +
+                               "Direction     : <" + robot.getCurrentDirection() + ">\n" +
+                               "Shields       : <" + robot.getState().getShields() + ">\n"+
+                               "Shots         : <" + robot.getState().getShields() + ">\n" +
+                               "Status        : <" + robot.getState().getStatus() + "\n");
+
         }
     }
 
