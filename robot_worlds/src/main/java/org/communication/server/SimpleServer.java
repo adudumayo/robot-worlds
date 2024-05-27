@@ -13,7 +13,7 @@ import org.communication.client.Request;
 
 public class SimpleServer implements Runnable {
 
-    public static final int PORT = 5001;
+    public static final int PORT = 5000;
     private final BufferedReader in;
     private final PrintStream out;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
@@ -109,9 +109,7 @@ public class SimpleServer implements Runnable {
                 }else {
                     e.printStackTrace();
                 }
-
-
-        }
+            }
 
         }
 
