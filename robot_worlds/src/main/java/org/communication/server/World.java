@@ -11,7 +11,7 @@ public class World {
 
     private static World instance;
     private Obstacle obstacle;
-    public ArrayList<Obstacle> obstacles = new ArrayList<>();
+    public ArrayList<Object> obstacles = new ArrayList<>();
     public ArrayList<Obstacle> obstaclesLook = new ArrayList<>();
 
 
@@ -54,12 +54,14 @@ public class World {
 //        obstacles.add(obstacle);
 //    }
     public boolean isPositionBlocked(int x, int y) {
-        for (Obstacle obstacle : obstacles) {
-            // Check if the position (x, y) is within the obstacle's area
-            if (x >= obstacle.getX() && x <= obstacle.getX() + 4 &&
-                    y >= obstacle.getY() && y <= obstacle.getY() + 4) {
-                obstaclesLook.add(new Obstacle(obstacle.getX(),obstacle.getY()));
-                return true; // Position is blocked by an obstacle
+        for (Object obs : obstacles) {
+            if (obs instanceof Obstacle obstacle) {
+                // Check if the position (x, y) is within the obstacle's area
+                if (x >= obstacle.getX() && x <= obstacle.getX() + 4 &&
+                        y >= obstacle.getY() && y <= obstacle.getY() + 4) {
+                    obstaclesLook.add(new Obstacle(obstacle.getX(), obstacle.getY()));
+                    return true; // Position is blocked by an obstacle
+                }
             }
         }
         return false; // Position is not blocked by any obstacle

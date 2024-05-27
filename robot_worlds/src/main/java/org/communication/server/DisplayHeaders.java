@@ -44,9 +44,11 @@ public class DisplayHeaders {
     public static void displayObstaclesAndRobots(){
         World world = World.getInstance();
         System.out.println("There are some obstacles:");
-        for (Obstacle obs : world.obstacles){
-            String printObstacle =String.format("- At position " + obs.getX() + ", " +  obs.getY() + " (to " +  (obs.getX()+4) + ", " + (obs.getY()+4) +")");
-            System.out.println(printObstacle);
+        for (Object obs : world.obstacles){
+            if (obs instanceof Obstacle obstacle) {
+                String printObstacle =String.format("- At position " + obstacle.getX() + ", " +  obstacle.getY() + " (to " +  (obstacle.getX()+4) + ", " + (obstacle.getY()+4) +")");
+                System.out.println(printObstacle);
+            }
         }
         System.out.println("Number robots in the world : " + robotNames.size());
     }
