@@ -1,6 +1,6 @@
 package org.communication.server;
-import javax.print.DocFlavor;
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.communication.server.MultiServers.topLeftX_world;
 import static org.communication.server.MultiServers.topLeftY_world;
@@ -18,6 +18,7 @@ public class World {
     public ArrayList<Obstacle> obstaclesLook = new ArrayList<>();
 
     private World() {
+        Random random = new Random();
         this.obstacle = new Obstacle(0, 100);
         obstacles.add(obstacle);
         this.obstacle = new Obstacle(100, 0);
@@ -30,6 +31,7 @@ public class World {
         // hardcoded dummy robots
         for (int i = 1; i <= 5; i++) {
             this.robot = new Robot("Robot" + i);
+            robot.setPosition(new Position(random.nextInt(-100, 100), random.nextInt(-100, 100)));
             obstacles.add(robot);
         }
     }

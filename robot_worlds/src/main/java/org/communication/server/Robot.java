@@ -37,6 +37,10 @@ public class Robot {
         return status;
     }
 
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     public Robot(String name) {
         this.name = name;
         this.status = "NORMAL";
