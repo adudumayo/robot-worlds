@@ -50,7 +50,12 @@ public class DisplayHeaders {
                 System.out.println(printObstacle);
             }
         }
-        System.out.println("Number robots in the world : " + robotNames.size());
+        System.out.println("\nNumber robots in the world : " + robotNames.size());
+        for (Object obs : world.obstacles) {
+            if (obs instanceof Robot robot) {
+                System.out.println(robot);
+            }
+        }
     }
 
     public static void listRobots(){

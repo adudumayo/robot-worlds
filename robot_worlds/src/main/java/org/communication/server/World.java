@@ -1,4 +1,5 @@
 package org.communication.server;
+import javax.print.DocFlavor;
 import java.util.ArrayList;
 
 import static org.communication.server.MultiServers.topLeftX_world;
@@ -11,6 +12,7 @@ public class World {
     private static final Position BOTTOM_RIGHT = new Position(bottomRightX_world, bottomRightY_world);
     private static World instance;
     private Obstacle obstacle;
+    private Robot robot;
 
     public ArrayList<Object> obstacles = new ArrayList<>();
     public ArrayList<Obstacle> obstaclesLook = new ArrayList<>();
@@ -24,6 +26,12 @@ public class World {
         obstacles.add(obstacle);
         this.obstacle = new Obstacle(-100, 0);
         obstacles.add(obstacle);
+
+        // hardcoded dummy robots
+        for (int i = 1; i <= 5; i++) {
+            this.robot = new Robot("Robot" + i);
+            obstacles.add(robot);
+        }
     }
 
     public static World getInstance() {
