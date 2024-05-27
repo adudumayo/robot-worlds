@@ -69,6 +69,7 @@ public class SimpleClient extends DisplayHeaders {
                 if (serverResponse.equals("quit")){
                     System.out.println("You're out, bye!");
                     keepRunning = false;
+                    System.exit(0);
                     break;
                 }
                 System.out.println(serverResponse);
