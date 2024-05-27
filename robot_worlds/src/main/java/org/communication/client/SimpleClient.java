@@ -73,7 +73,20 @@ public class SimpleClient extends DisplayHeaders {
                     break;
                 }
                 System.out.println(serverResponse);
+//                if (robot.equals(unassignedRobot) && !keepExecuting)
+//                    continue;   // Step out of Loop. Don't send Request if there is no Robot launched.
+//
+//                if (launchCommand) {  // Assigned the Robot Name in the Client Program
+//                    if (!robot.equals(unassignedRobot)) { // Prevent the User from trying to launch more than one Robot.
+//                        System.out.println("You can't launch more than one Robot into the RobotWorld.");
+//                        continue;
+//                    }
+//                    robot = request.getRobotName(); // This is sent in all  future Requests.
+
+
             }
+
+
 
             inputThread.interrupt();
 

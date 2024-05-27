@@ -22,6 +22,7 @@ public class SimpleServer implements Runnable {
     public static ArrayList<Robot> robotObjects = new ArrayList<>();
     Gson gson = new Gson();
     Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+    int launchCounter = 0;
 
     public SimpleServer(Socket socket) throws IOException {
         out = new PrintStream(socket.getOutputStream());
@@ -38,9 +39,10 @@ public class SimpleServer implements Runnable {
 
                 try{
                     Request request = gson.fromJson(messageFromClient, Request.class);
-                    if (request.getCommand().equals("launch")){
+                    if (request.getCommand().equals("launch") && launchCounter == 0) {
+                        launchCounter += 1;
                         String robotName = request.getRobotName();
-                        if (!robotNames.contains(robotName)){
+                        if (!robotNames.contains(robotName)) {
                             robot = new Robot(robotName);
                             request.setRobot(robotName);
                             robotNames.add(robotName);
@@ -49,11 +51,17 @@ public class SimpleServer implements Runnable {
                             System.out.println(request.getRobotName() + " just launched into the world");
                             out.println(sendResponsetoClient(robot, gsonPretty, shield, shots));
                             robotObjects.add(robot);
-                        }else {
+                        } else {
                             errorResponse(robot, gsonPretty, "ERROR", "Too many of you in this world");
                         }
 
-                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state")) {
+                    }else if (request.getCommand().equals("launch")&& launchCounter > 0 ){
+                        String jsomToClient = errorResponse(robot, gsonPretty, "ERROR", "You've already launched");
+                        out.println(jsomToClient);
+
+
+
+                }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state")) {
                         try {
                             if (!turns.contains(request.getArguments()[0])) {
                                 String newRobotCommand = request.getCommand() + " " + request.getArguments()[0];
