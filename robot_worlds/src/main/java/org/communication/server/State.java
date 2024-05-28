@@ -15,6 +15,15 @@ public class State {
     }
 
     // Getter and setter methods
+
+    public void decrementShots(){
+        if (this.shots > 0){
+            this.shots-=1;
+        }else{
+            this.shots = 0;
+        }
+
+    }
     public String getPosition() {
         return position;
     }

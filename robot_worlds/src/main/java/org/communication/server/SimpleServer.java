@@ -17,12 +17,13 @@ public class SimpleServer implements Runnable {
     private final BufferedReader in;
     private final PrintStream out;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
-    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state")); //ArrayList to store robots valid commands
+    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state", "fire")); //ArrayList to store robots valid commands
     public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
     public static ArrayList<Robot> robotObjects = new ArrayList<>();
     Gson gson = new Gson();
     Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
-    int launchCounter = 0;
+
+
 
     public SimpleServer(Socket socket) throws IOException {
         out = new PrintStream(socket.getOutputStream());
@@ -35,12 +36,11 @@ public class SimpleServer implements Runnable {
 
         try{
             while ((messageFromClient = in.readLine()) != null) {
-                System.out.println(messageFromClient);
+//                System.out.println(messageFromClient);
 
                 try{
                     Request request = gson.fromJson(messageFromClient, Request.class);
-                    if (request.getCommand().equals("launch") && launchCounter == 0) {
-                        launchCounter += 1;
+                    if (request.getCommand().equals("launch")){
                         String robotName = request.getRobotName();
                         if (!robotNames.contains(robotName)) {
                             robot = new Robot(robotName);
@@ -51,17 +51,13 @@ public class SimpleServer implements Runnable {
                             System.out.println(request.getRobotName() + " just launched into the world");
                             out.println(sendResponsetoClient(robot, gsonPretty, shield, shots));
                             robotObjects.add(robot);
-                        } else {
+
+                        }else {
                             errorResponse(robot, gsonPretty, "ERROR", "Too many of you in this world");
                         }
 
-                    }else if (request.getCommand().equals("launch")&& launchCounter > 0 ){
-                        String jsomToClient = errorResponse(robot, gsonPretty, "ERROR", "You've already launched");
-                        out.println(jsomToClient);
 
-
-
-                }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state")) {
+                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire")) {
                         try {
                             if (!turns.contains(request.getArguments()[0])) {
                                 String newRobotCommand = request.getCommand() + " " + request.getArguments()[0];
@@ -82,11 +78,18 @@ public class SimpleServer implements Runnable {
                                 out.println(errorResponse);
                             }
 
-                        } catch (IllegalArgumentException e) {
+                        } catch (IllegalArgumentException |NullPointerException e) {
                             String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
                             out.println(errorResponse);
 
                         }
+
+                    }else if (validCommands.contains(request.getCommand()) && request.getCommand().equals("fire") && request.getArguments()==null){
+                        Command command = Command.create(request.getCommand());
+                        robot.handleCommand(command);
+                        String jsonToClient = sendFireResponseMiss(robot, gsonPretty, robot.getState().getShields(), robot.getState().getShots() );
+                        out.println(jsonToClient);
+
 
                     }else if (request.getCommand().equals("look") && validCommands.contains("look")) {
 
@@ -120,6 +123,22 @@ public class SimpleServer implements Runnable {
             }
 
         }
+
+    private String sendFireResponseMiss(Robot robot, Gson gsonPretty, int shield, int shots){
+        Map<String, Object> data = new HashMap<>();
+        Response response = new Response();
+        State state = new State(shield, shots);
+        if (shots == 0){
+            data.put("message", "please reload bullets");
+        }else{
+            data.put("message", "Miss");
+        }
+        data.put("shots", state.getShots());
+        response.setData(data);
+
+        return gsonPretty.toJson(response);
+
+    }
 
         private String sendStateResponseToClient(Robot robot, Gson gsonPretty, int shield, int shots){
             Response response = new Response();

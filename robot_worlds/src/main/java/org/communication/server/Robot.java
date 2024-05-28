@@ -1,11 +1,7 @@
 package org.communication.server;
 
 import java.util.ArrayList;
-import static org.communication.server.MultiServers.topLeftX_world;
-import static org.communication.server.MultiServers.topLeftY_world;
-import static org.communication.server.MultiServers.bottomRightX_world;
-import static org.communication.server.MultiServers.bottomRightY_world;
-
+import static org.communication.server.MultiServers.*;
 public class Robot {
     private final Position TOP_LEFT = new Position(topLeftX_world,topLeftY_world);
     private final Position BOTTOM_RIGHT = new Position(bottomRightX_world, bottomRightY_world);
@@ -99,7 +95,7 @@ public class Robot {
         return false;
     }
 
-    public void look() {
+    public void look(int range) {
         World world = World.getInstance();
 
         allObstacles.clear();
@@ -110,7 +106,7 @@ public class Robot {
         obstaclesWest.clear();
 
         // Check North direction
-        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), 200);
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), position.getY() + range);
         if (pathCheck) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesNorth.add(String.format("North Obstacle at (%d, %d) to (%d, %d)",
@@ -126,7 +122,7 @@ public class Robot {
         world.obstaclesLook.clear();
 
         // Check East direction
-        pathCheck = world.isPathBlocked(position.getX(), position.getY(), 200, position.getY());
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX() + range, position.getY());
         if (pathCheck) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesEast.add(String.format("East Obstacle at (%d, %d) to (%d, %d)",
@@ -142,7 +138,7 @@ public class Robot {
         world.obstaclesLook.clear();
 
         // Check South direction
-        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), -200);
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), position.getY() - range);
         if (pathCheck) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesSouth.add(String.format("South Obstacle at (%d, %d) to (%d, %d)",
@@ -158,7 +154,7 @@ public class Robot {
         world.obstaclesLook.clear();
 
         // Check West direction
-        pathCheck = world.isPathBlocked(position.getX(), position.getY(), -200, position.getY());
+        pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX() - range, position.getY());
         if (pathCheck) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesWest.add(String.format("West Obstacle at (%d, %d) to (%d, %d)",
@@ -178,6 +174,11 @@ public class Robot {
         allObstacles.addAll(obstaclesEast);
         allObstacles.addAll(obstaclesSouth);
         allObstacles.addAll(obstaclesWest);
+    }
+
+
+    public void fireShots(){
+        this.getState().decrementShots();
     }
 
     public ArrayList<String> displayObstaclesForLook(){

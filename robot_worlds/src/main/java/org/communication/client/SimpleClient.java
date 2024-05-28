@@ -14,6 +14,7 @@ import java.io.Serializable;
 import static org.communication.server.SimpleServer.validCommands;
 public class SimpleClient extends DisplayHeaders {
     public static boolean keepRunning = true;
+    public static int launchCount = 0;
     public static void main(String[] args) throws IOException {
 
         Scanner sc = new Scanner(System.in);
@@ -30,13 +31,17 @@ public class SimpleClient extends DisplayHeaders {
             displayRobotCommands();
             displayRobotModels();
 
-
             Thread inputThread = new Thread(() -> {
                 while (keepRunning) {
                     String userInput = sc.nextLine().toLowerCase();
                     String[] parts = userInput.split(" ");
-                    if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && (parts.length == 3)) {
-                        String[] stringArgs = {parts[1], "10", "10"};
+                    if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3 && launchCount ==0) {
+                        launchCount += 1;
+                        System.out.println("Enter the Max Shield:");
+                        String maxShield = sc.nextLine();
+                        System.out.println("Enter the Max Shots:");
+                        String maxShots = sc.nextLine();
+                        String[] stringArgs = {parts[1], maxShield, maxShots};
                         Request request = new Request(parts[2], parts[0], stringArgs);
                         out.println(gson.toJson(request));
                         out.flush();
@@ -60,8 +65,6 @@ public class SimpleClient extends DisplayHeaders {
                     }else{
                         System.out.println("Invalid Command, try again!");
 
-
-
                     }
                 }
             });
@@ -75,20 +78,7 @@ public class SimpleClient extends DisplayHeaders {
                     break;
                 }
                 System.out.println(serverResponse);
-//                if (robot.equals(unassignedRobot) && !keepExecuting)
-//                    continue;   // Step out of Loop. Don't send Request if there is no Robot launched.
-//
-//                if (launchCommand) {  // Assigned the Robot Name in the Client Program
-//                    if (!robot.equals(unassignedRobot)) { // Prevent the User from trying to launch more than one Robot.
-//                        System.out.println("You can't launch more than one Robot into the RobotWorld.");
-//                        continue;
-//                    }
-//                    robot = request.getRobotName(); // This is sent in all  future Requests.
-
-
             }
-
-
 
             inputThread.interrupt();
 

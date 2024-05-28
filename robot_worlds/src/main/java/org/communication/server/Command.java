@@ -38,6 +38,8 @@ public abstract class Command {
                 return new LeftCommand(args[0]);
             case "look":
                 return new Look(args[0]);
+            case "fire":
+                return new Fire(args[0]);
             default:
                 throw new IllegalArgumentException("Unsupported command: " + instruction);
         }
