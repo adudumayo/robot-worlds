@@ -60,6 +60,8 @@ public class SimpleClient extends DisplayHeaders {
                     }else{
                         System.out.println("Invalid Command, try again!");
 
+
+
                     }
                 }
             });
