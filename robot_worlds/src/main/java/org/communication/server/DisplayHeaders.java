@@ -6,7 +6,7 @@ import static org.communication.server.SimpleServer.robotObjects;
 public class DisplayHeaders {
 
     public static void displayRobotCommands(){
-        System.out.println("\nRobot Commands");
+        System.out.println("\nRobot Commands: ");
         System.out.println("'launch' - launch a new robot into the world");
         System.out.println("'look' - Allows your robot to look around");
         System.out.println("'state' - View the current state of your robot\n");
@@ -21,11 +21,11 @@ public class DisplayHeaders {
     }
     public static void displayRobotModels(){
         System.out.println("Choose a Robot below:");
-        System.out.println("1. Warpath");
-        System.out.println("2. Demolisher");
+        System.out.println("1. Demolisher");
+        System.out.println("2. Destroyer");
         System.out.println("3. Reaper");
         System.out.println("4. Venom");
-        System.out.println("5. Blaze\n");
+        System.out.println("5. Warpath\n");
         System.out.println("To join the game enter e.g 'launch reaper james'\n");
     }
 
