@@ -1,10 +1,10 @@
 package org.communication.server;
-import static org.communication.server.MultiServers.setVisibility;
+
 public class Look extends Command{
 
     @Override
     public boolean execute(Robot target) {
-        target.look(setVisibility);
+        target.look(Config.getVisibility());
         System.out.println(target.allObstacles);
         return false;
     }

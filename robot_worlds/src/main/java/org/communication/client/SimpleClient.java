@@ -3,18 +3,15 @@ package org.communication.client;
 import java.net.*;
 import java.io.*;
 import java.util.*;
-
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-import org.communication.server.DisplayHeaders;
-import org.communication.server.Response;
-
-import java.io.Serializable;
-
+import static org.communication.server.DisplayHeaders.*;
 import static org.communication.server.SimpleServer.validCommands;
-public class SimpleClient extends DisplayHeaders {
+
+public class SimpleClient {
+
     public static boolean keepRunning = true;
     public static int launchCount = 0;
+
     public static void main(String[] args) throws IOException {
 
         Scanner sc = new Scanner(System.in);
@@ -77,7 +74,9 @@ public class SimpleClient extends DisplayHeaders {
                     System.exit(0);
                     break;
                 }
-                System.out.println(serverResponse);
+//                System.out.println(serverResponse);
+                displayServerResponse(serverResponse);
+                System.out.println();
             }
 
             inputThread.interrupt();
@@ -89,5 +88,9 @@ public class SimpleClient extends DisplayHeaders {
         }
 
         }
-    }
+
+
+}
+
+
 

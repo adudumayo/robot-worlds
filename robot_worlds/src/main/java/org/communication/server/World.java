@@ -2,14 +2,9 @@ package org.communication.server;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static org.communication.server.MultiServers.topLeftX_world;
-import static org.communication.server.MultiServers.topLeftY_world;
-import static org.communication.server.MultiServers.bottomRightX_world;
-import static org.communication.server.MultiServers.bottomRightY_world;
-
 public class World {
-    private static final Position TOP_LEFT = new Position(topLeftX_world, topLeftY_world);
-    private static final Position BOTTOM_RIGHT = new Position(bottomRightX_world, bottomRightY_world);
+    private static final Position TOP_LEFT = new Position(Config.getTopLeftX_world(), Config.getTopLeftY_world());
+    private static final Position BOTTOM_RIGHT = new Position(Config.getBottomRightX_world(), Config.getBottomRightY_world());
     private static World instance;
     private Obstacle obstacle;
     private Robot robot;

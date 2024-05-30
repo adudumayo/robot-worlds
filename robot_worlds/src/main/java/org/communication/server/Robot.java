@@ -1,10 +1,11 @@
 package org.communication.server;
 
 import java.util.ArrayList;
-import static org.communication.server.MultiServers.*;
+
+
 public class Robot {
-    private final Position TOP_LEFT = new Position(topLeftX_world,topLeftY_world);
-    private final Position BOTTOM_RIGHT = new Position(bottomRightX_world, bottomRightY_world);
+    private final Position TOP_LEFT = new Position(Config.getTopLeftX_world(), Config.getTopLeftY_world());
+    private final Position BOTTOM_RIGHT = new Position(Config.getBottomRightX_world(), Config.getBottomRightY_world());
     public static final Position CENTRE = new Position(0,0);
 
     public void setState(State state) {

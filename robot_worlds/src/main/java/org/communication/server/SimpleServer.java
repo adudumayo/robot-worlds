@@ -49,7 +49,7 @@ public class SimpleServer implements Runnable {
                             int shield = Integer.parseInt(request.getArguments()[1]);
                             int shots = Integer.parseInt(request.getArguments()[2]);
                             System.out.println(request.getRobotName() + " just launched into the world");
-                            out.println(sendResponsetoClient(robot, gsonPretty, shield, shots));
+                            out.println(sendResponsetoClient(robot, gson, shield, shots));
                             robotObjects.add(robot);
 
                         }else {
@@ -63,23 +63,23 @@ public class SimpleServer implements Runnable {
                                 String newRobotCommand = request.getCommand() + " " + request.getArguments()[0];
                                 Command command = Command.create(newRobotCommand);
                                 robot.handleCommand(command);
-                                String jsonToClient = successfulResponse(robot, gsonPretty, "OK", robot.getState().getShields(), robot.getState().getShots());
+                                String jsonToClient = successfulResponse(robot, gson, "OK", robot.getState().getShields(), robot.getState().getShots());
                                 out.println(jsonToClient);
 
                             } else if (turns.contains(request.getArguments()[0])) {
                                 String newRobotCommand = request.getArguments()[0];
                                 Command command = Command.create(newRobotCommand);
                                 robot.handleCommand(command);
-                                String jsonToClient = successfulResponse(robot, gsonPretty, "OK", robot.getState().getShields(), robot.getState().getShots());
+                                String jsonToClient = successfulResponse(robot, gson, "OK", robot.getState().getShields(), robot.getState().getShots());
                                 out.println(jsonToClient);
 
                             } else {
-                                String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
+                                String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
                                 out.println(errorResponse);
                             }
 
                         } catch (IllegalArgumentException |NullPointerException e) {
-                            String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
+                            String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
                             out.println(errorResponse);
 
                         }
@@ -87,7 +87,7 @@ public class SimpleServer implements Runnable {
                     }else if (validCommands.contains(request.getCommand()) && request.getCommand().equals("fire") && request.getArguments()==null){
                         Command command = Command.create(request.getCommand());
                         robot.handleCommand(command);
-                        String jsonToClient = sendFireResponseMiss(robot, gsonPretty, robot.getState().getShields(), robot.getState().getShots() );
+                        String jsonToClient = sendFireResponseMiss( gson, robot.getState().getShots() );
                         out.println(jsonToClient);
 
 
@@ -97,16 +97,16 @@ public class SimpleServer implements Runnable {
                         Command command = Command.create(newRobotCommand);
                         robot.handleCommand(command);
 
-                        String jsonToClient = successfulLookResponse(robot, gsonPretty, "OK", robot.getState().getShields(), robot.getState().getShots());
+                        String jsonToClient = successfulLookResponse(robot, gson, "OK", robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
                     }else if (request.getCommand().equals("state") && validCommands.contains("state")){
-                        String jsonToClient = sendStateResponseToClient(robot, gsonPretty, robot.getState().getShields(), robot.getState().getShots());
+                        String jsonToClient = sendStateResponseToClient(robot, gson, robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
 
                     }else {
-                        String errorResponse = errorResponse(robot, gsonPretty, "ERROR", "Could not parse arguments");
+                        String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
                         out.println(errorResponse);
                     }
 
@@ -124,33 +124,35 @@ public class SimpleServer implements Runnable {
 
         }
 
-    private String sendFireResponseMiss(Robot robot, Gson gsonPretty, int shield, int shots){
+    private String sendFireResponseMiss( Gson gson, int shots){
         Map<String, Object> data = new HashMap<>();
         Response response = new Response();
-        State state = new State(shield, shots);
+        State state = new State(shots);
         if (shots == 0){
             data.put("message", "please reload bullets");
         }else{
             data.put("message", "Miss");
         }
         data.put("shots", state.getShots());
+        response.setState(state);
         response.setData(data);
 
-        return gsonPretty.toJson(response);
+
+        return gson.toJson(response);
 
     }
 
-        private String sendStateResponseToClient(Robot robot, Gson gsonPretty, int shield, int shots){
+        private String sendStateResponseToClient(Robot robot, Gson gson, int shield, int shots){
             Response response = new Response();
             // Create and set the state object
             State state = new State(shield, shots);
             state.setPosition(robot.coordinatePosition());
             state.setDirection(robot.getCurrentDirection());
             response.setState(state);
-            return gsonPretty.toJson(response);
+            return gson.toJson(response);
         }
 
-        private String sendResponsetoClient(Robot robot, Gson gsonPretty, int shield, int shots){
+        private String sendResponsetoClient(Robot robot, Gson gson, int shield, int shots){
             Response response = new Response();
             // Create and set the state object
             State state = new State(shield,shots);
@@ -164,25 +166,25 @@ public class SimpleServer implements Runnable {
             // create and set the data map
             Map<String, Object> data = new HashMap<>();
             data.put("position", robot.coordinatePosition());
-            data.put("visibility", "10");
-            data.put("reload", "10");
-            data.put("repair", "15");
+            data.put("visibility", Config.getVisibility());
+            data.put("reload", Config.getReloadTime());
+            data.put("repair", Config.getRepairTime());
             data.put("shields", robot.getState().getShields());
             response.setData(data);
 
-            return gsonPretty.toJson(response);
+            return gson.toJson(response);
         }
 
-        private String errorResponse(Robot robot, Gson gsonPretty, String setResult, String message){
+        private String errorResponse(Robot robot, Gson gson, String setResult, String message){
             Response response = new Response();
             response.setResult(setResult);
             Map<String, Object> data = new HashMap<>();
             data.put("message", message);
             response.setData(data);
-            return gsonPretty.toJson(response);
+            return gson.toJson(response);
 
         }
-        private String successfulResponse(Robot robot, Gson gsonPretty, String setResult, int shield, int shots){
+        private String successfulResponse(Robot robot, Gson gson, String setResult, int shield, int shots){
             Response response = new Response();
             response.setResult(setResult);
             Map<String, Object> data = new HashMap<>();
@@ -196,10 +198,10 @@ public class SimpleServer implements Runnable {
             state.setStatus("NORMAL");
             response.setState(state);
 
-            return gsonPretty.toJson(response);
+            return gson.toJson(response);
 
         }
-        private String successfulLookResponse(Robot robot, Gson gsonPretty, String setResult, int shield, int shots) {
+        private String successfulLookResponse(Robot robot, Gson gson, String setResult, int shield, int shots) {
 
             // Create the response object
             Map<String, Object> data = new HashMap<>();
@@ -234,7 +236,7 @@ public class SimpleServer implements Runnable {
             response.setState(state);
 
             // Convert response to JSON
-            return gsonPretty.toJson(response);
+            return gson.toJson(response);
         }
     }
 
