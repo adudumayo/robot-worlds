@@ -32,12 +32,24 @@ public class SimpleClient {
                 while (keepRunning) {
                     String userInput = sc.nextLine().toLowerCase();
                     String[] parts = userInput.split(" ");
+                    if (userInput.startsWith("quit")) {
+                        System.out.println("Exiting game...");
+                        System.exit(0);
+                    }
                     if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3 && launchCount ==0) {
                         launchCount += 1;
                         System.out.println("Enter the Max Shield:");
                         String maxShield = sc.nextLine();
+                        if (maxShield.startsWith("quit")) {
+                            System.out.println("Exiting game...");
+                            System.exit(0);
+                        }
                         System.out.println("Enter the Max Shots:");
                         String maxShots = sc.nextLine();
+                        if (maxShots.startsWith("quit")) {
+                            System.out.println("Exiting game...");
+                            System.exit(0);
+                        }
                         String[] stringArgs = {parts[1], maxShield, maxShots};
                         Request request = new Request(parts[2], parts[0], stringArgs);
                         out.println(gson.toJson(request));
