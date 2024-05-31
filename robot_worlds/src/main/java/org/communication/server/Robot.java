@@ -1,6 +1,9 @@
 package org.communication.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 
 public class Robot {
@@ -8,9 +11,7 @@ public class Robot {
     private final Position BOTTOM_RIGHT = new Position(Config.getBottomRightX_world(), Config.getBottomRightY_world());
     public static final Position CENTRE = new Position(0,0);
 
-    public void setState(State state) {
-        this.state = state;
-    }
+
     private State state;
     private Position position;
     private Direction currentDirection;
@@ -18,14 +19,18 @@ public class Robot {
     private String name;
     public boolean positionCheck;
     public boolean pathCheck;
+    public boolean positionCheckRobot;
+    public boolean pathCheckRobot;
     public ArrayList<String> obstaclesNorth = new ArrayList<>();
     public ArrayList<String> obstaclesEast = new ArrayList<>();
     public ArrayList<String> obstaclesSouth = new ArrayList<>();
     public ArrayList<String> obstaclesWest = new ArrayList<>();
-    public ArrayList<Integer> obstacleSteps = new ArrayList<>();
+    public Map<String, Integer> obstacleSteps = new HashMap<>();
 
     ArrayList<String> allObstacles = new ArrayList<>();
-
+    public void setState(State state) {
+        this.state = state;
+    }
     public Direction getCurrentDirection() {
         return currentDirection;
     }
@@ -38,10 +43,19 @@ public class Robot {
         this.position = position;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Robot(String name) {
+        World world = World.getInstance();
         this.name = name;
         this.status = "NORMAL";
-        this.position = CENTRE;
+        this.position = randomPosition(this,world);
         this.currentDirection = Direction.NORTH;
     }
 
@@ -82,11 +96,16 @@ public class Robot {
         Position newPosition = new Position(newX, newY);
         positionCheck = world.isPositionBlocked(newPosition.getX(),newPosition.getY());
         pathCheck = world.isPathBlocked(position.getX(),position.getY(),newPosition.getX(),newPosition.getY());
+        pathCheckRobot = world.isPathBlockedRobot(position.getX(),position.getY(), newPosition.getX(), newPosition.getY(), this);
 
         if(positionCheck){
             return false;
         }
         if(pathCheck){
+            return false;
+        }
+        if(pathCheckRobot){
+            System.out.println("test");
             return false;
         }
         if (newPosition.isIn(TOP_LEFT,BOTTOM_RIGHT)){
@@ -108,67 +127,83 @@ public class Robot {
 
         // Check North direction
         pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), position.getY() + range);
-        if (pathCheck) {
+        pathCheckRobot = world.isPathBlockedRobot(position.getX(), position.getY(), position.getX(), position.getY() + range, this);
+        if (pathCheck || pathCheckRobot) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesNorth.add(String.format("North Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(obs.getY() - position.getY());  // Calculate steps to the obstacle
-
+                obstacleSteps.put("obstacle", obs.getY() - position.getY());  // Store steps to the obstacle with key "obstacle"
+            }
+            for (Robot robot : world.robotLook) {
+                obstaclesNorth.add(String.format("North Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
+                obstacleSteps.put("robot", robot.getPosition().getY() - position.getY());  // Store steps to the robot with key "robot"
             }
         } else {
             obstaclesNorth.add("No Obstacles for North");
-            obstacleSteps.add(0);
-
+            obstacleSteps.put("none", 0);
         }
         world.obstaclesLook.clear();
+        world.robotLook.clear();
 
         // Check East direction
         pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX() + range, position.getY());
-        if (pathCheck) {
+        pathCheckRobot = world.isPathBlockedRobot(position.getX(), position.getY(), position.getX() + range, position.getY(), this);
+        if (pathCheck || pathCheckRobot) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesEast.add(String.format("East Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(obs.getX() - position.getX());  // Calculate steps to the obstacle
-
+                obstacleSteps.put("obstacle", obs.getX() - position.getX());  // Store steps to the obstacle with key "obstacle"
+            }
+            for (Robot robot : world.robotLook) {
+                obstaclesEast.add(String.format("East Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
+                obstacleSteps.put("robot", robot.getPosition().getX() - position.getX());  // Store steps to the robot with key "robot"
             }
         } else {
             obstaclesEast.add("No Obstacles for East");
-            obstacleSteps.add(0);
-
+            obstacleSteps.put("none", 0);
         }
         world.obstaclesLook.clear();
+        world.robotLook.clear();
 
         // Check South direction
         pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX(), position.getY() - range);
-        if (pathCheck) {
+        pathCheckRobot = world.isPathBlockedRobot(position.getX(), position.getY(), position.getX(), position.getY() - range, this);
+        if (pathCheck || pathCheckRobot) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesSouth.add(String.format("South Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(position.getY() - obs.getY());  // Calculate steps to the obstacle
-
+                obstacleSteps.put("obstacle", position.getY() - obs.getY());  // Store steps to the obstacle with key "obstacle"
+            }
+            for (Robot robot : world.robotLook) {
+                obstaclesSouth.add(String.format("South Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
+                obstacleSteps.put("robot", position.getY() - robot.getPosition().getY());  // Store steps to the robot with key "robot"
             }
         } else {
             obstaclesSouth.add("No Obstacles for South");
-            obstacleSteps.add(0);
-
+            obstacleSteps.put("none", 0);
         }
         world.obstaclesLook.clear();
+        world.robotLook.clear();
 
         // Check West direction
         pathCheck = world.isPathBlocked(position.getX(), position.getY(), position.getX() - range, position.getY());
-        if (pathCheck) {
+        pathCheckRobot = world.isPathBlockedRobot(position.getX(), position.getY(), position.getX() - range, position.getY(), this);
+        if (pathCheck || pathCheckRobot) {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesWest.add(String.format("West Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.add(position.getX() - obs.getX());  // Calculate steps to the obstacle
-
+                obstacleSteps.put("obstacle", position.getX() - obs.getX());  // Store steps to the obstacle with key "obstacle"
+            }
+            for (Robot robot : world.robotLook) {
+                obstaclesWest.add(String.format("West Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
+                obstacleSteps.put("robot", position.getX() - robot.getPosition().getX());  // Store steps to the robot with key "robot"
             }
         } else {
             obstaclesWest.add("No Obstacles for West");
-            obstacleSteps.add(0);
-
+            obstacleSteps.put("none", 0);
         }
         world.obstaclesLook.clear();
+        world.robotLook.clear();
 
         // Combine all obstacles into a single list to return
         allObstacles.addAll(obstaclesNorth);
@@ -176,8 +211,6 @@ public class Robot {
         allObstacles.addAll(obstaclesSouth);
         allObstacles.addAll(obstaclesWest);
     }
-
-
     public void fireShots(){
         this.getState().decrementShots();
     }
@@ -208,5 +241,23 @@ public class Robot {
     public State getState() {
         return state;
     }
+
+    public Position randomPosition(Robot robot, World world){
+        Random random = new Random();
+        int randomX = random.nextInt(-190, 190);
+        int randomY = random.nextInt(-190,190);
+        positionCheck = world.isPositionBlocked(randomX,randomY);
+        positionCheckRobot = world.isPositionBlockedRobot(randomX,randomY, robot);
+        while (positionCheck || positionCheckRobot){
+            randomX = random.nextInt(-190, 190);
+            randomY = random.nextInt(-190,190);
+            positionCheck = world.isPositionBlocked(randomX,randomY);
+            positionCheckRobot = world.isPositionBlockedRobot(randomX,randomY, robot);
+        }
+
+        return new Position(randomX,randomY);
+    }
+
+
 
 }

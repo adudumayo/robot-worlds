@@ -6,9 +6,9 @@ public class ForwardCommand extends Command {
         int nrSteps = Integer.parseInt(getArgument());
         if (target.updatePosition(nrSteps)){
             target.setStatus("Done");
-        } else if(target.positionCheck) {
+        } else if(target.positionCheck || target.positionCheckRobot) {
             target.setStatus("Obstructed!");
-        } else if(target.pathCheck) {
+        } else if(target.pathCheck || target.pathCheckRobot) {
             target.setStatus("Obstructed!");
         }else{
             target.setStatus("At the Edge!");

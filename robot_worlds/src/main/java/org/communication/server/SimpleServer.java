@@ -13,7 +13,7 @@ import org.communication.client.Request;
 
 public class SimpleServer implements Runnable {
 
-    public static final int PORT = 5000;
+    public static final int PORT = 5001;
     private final BufferedReader in;
     private final PrintStream out;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
@@ -44,6 +44,7 @@ public class SimpleServer implements Runnable {
                         String robotName = request.getRobotName();
                         if (!robotNames.contains(robotName)) {
                             robot = new Robot(robotName);
+                            robot.setName(robotName);
                             request.setRobot(robotName);
                             robotNames.add(robotName);
                             int shield = Integer.parseInt(request.getArguments()[1]);
@@ -78,7 +79,7 @@ public class SimpleServer implements Runnable {
                                 out.println(errorResponse);
                             }
 
-                        } catch (IllegalArgumentException |NullPointerException e) {
+                        } catch (IllegalArgumentException | NullPointerException e) {
                             String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
                             out.println(errorResponse);
 
@@ -201,44 +202,45 @@ public class SimpleServer implements Runnable {
             return gson.toJson(response);
 
         }
-        private String successfulLookResponse(Robot robot, Gson gson, String setResult, int shield, int shots) {
+    private String successfulLookResponse(Robot robot, Gson gson, String setResult, int shield, int shots) {
+        // Create the response object
+        Map<String, Object> data = new HashMap<>();
+        ArrayList<ObstacleType> objects = new ArrayList<>();
+        ArrayList<String> directions = new ArrayList<>(Arrays.asList("North", "East", "South", "West"));
+        Response response = new Response();
+        System.out.println(robot.obstacleSteps);
 
-            // Create the response object
-            Map<String, Object> data = new HashMap<>();
-            ArrayList<ObstacleType> objects = new ArrayList<>();
-            ArrayList<String> directions = new ArrayList<>(Arrays.asList("North", "East", "South", "West"));
-            Response response = new Response();
-            System.out.println(robot.obstacleSteps);
+        // Iterate through the obstacleSteps map
+        for (Map.Entry<String, Integer> entry : robot.obstacleSteps.entrySet()) {
+            String type = entry.getKey();
+            int steps = entry.getValue();
 
-
-            for (int i = 0; i < robot.obstacleSteps.size(); i++) {
-                int directionIndex = i % directions.size(); // Calculate the index of direction
-                String dir = directions.get(directionIndex);
-
-
-                if (robot.obstacleSteps.get(i) != 0) {
-                    ObstacleType obj = new ObstacleType(dir, "obstacle", robot.obstacleSteps.get(i));
-                    objects.add(obj);
-                }
+            if (!type.equals("none") && steps != 0) {
+                String direction = directions.get(objects.size() % directions.size()); // Cycle through directions
+                ObstacleType obj = new ObstacleType(direction, type, steps);
+                objects.add(obj);
             }
-            response.setResult(setResult);
-
-            // Create the data map and populate it
-            data.put("message", robot.getStatus());
-            data.put("object", objects);
-            response.setData(data);
-
-            // Create and set the state object
-            State state = new State(shield, shots);
-            state.setPosition(robot.coordinatePosition());
-            state.setDirection(robot.getCurrentDirection());
-            state.setStatus("NORMAL");
-            response.setState(state);
-
-            // Convert response to JSON
-            return gson.toJson(response);
         }
+
+        response.setResult(setResult);
+
+        // Create the data map and populate it
+        data.put("message", robot.getStatus());
+        data.put("object", objects);
+        response.setData(data);
+
+        // Create and set the state object
+        State state = new State(shield, shots);
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        state.setStatus("NORMAL");
+        response.setState(state);
+
+        // Convert response to JSON
+        return gson.toJson(response);
     }
+
+}
 
 
 

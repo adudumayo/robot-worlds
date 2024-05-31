@@ -1,7 +1,7 @@
 package org.communication.server;
 
 public class Config {
-    public static int topLeftX_world;
+    public static int topLeftX_world = -200;
     public static int topLeftY_world = 200;
     public static int bottomRightX_world = 200;
     public static int bottomRightY_world = -200;
