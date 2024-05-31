@@ -19,7 +19,7 @@ public class SimpleClient {
         ArrayList<String> robotModels = new ArrayList<>(Arrays.asList("warpath","demolisher","reaper", "venom", "blaze"));
 
         try (
-                Socket socket = new Socket("localhost", 5001);
+                Socket socket = new Socket("localhost", 5000);
                 PrintStream out = new PrintStream(socket.getOutputStream());
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 

@@ -55,8 +55,6 @@ public class World {
         return false; // Position is not blocked by any obstacle
     }
 
-
-
     public boolean isPathBlocked(int x1, int y1, int x2, int y2) {
         if (x1 == x2) {
             for (int i = Math.min(y1, y2); i <= Math.max(y1, y2); i++) {
@@ -81,7 +79,6 @@ public class World {
                 robotLook.add(robotObj);
                 return true;
             }
-
         }
         return false; // Position is not blocked by any obstacle
     }

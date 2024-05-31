@@ -30,6 +30,20 @@ public class State {
         }
 
     }
+
+    public void decrementShield(){
+        if (this.shields > 0){
+            this.shields-=1;
+        }else{
+            this.shields = 0;
+        }
+
+    }
+
+    public void decrementShieldBy(int amount) {
+        this.shields = Math.max(0, this.shields - amount);
+    }
+
     public String getPosition() {
         return position;
     }

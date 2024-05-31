@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import static org.communication.server.SimpleServer.*;
 
 
 public class Robot {
@@ -50,12 +51,12 @@ public class Robot {
     public void setName(String name) {
         this.name = name;
     }
-
+    //randomPosition(this,world);
     public Robot(String name) {
         World world = World.getInstance();
         this.name = name;
         this.status = "NORMAL";
-        this.position = randomPosition(this,world);
+        this.position = CENTRE;
         this.currentDirection = Direction.NORTH;
     }
 
@@ -211,9 +212,69 @@ public class Robot {
         allObstacles.addAll(obstaclesSouth);
         allObstacles.addAll(obstaclesWest);
     }
-    public void fireShots(){
-        this.getState().decrementShots();
+
+public void fireShots() {
+    World world = World.getInstance();
+    int targetX = this.position.getX();
+    int targetY = this.position.getY();
+
+    // Calculate the target position based on the current direction
+    if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
+        targetY += 5;
+    } else if (this.currentDirection.equals(Direction.DOWN)) {
+        targetY -= 5;
+    } else if (this.currentDirection.equals(Direction.RIGHT)) {
+        targetX += 5;
+    } else if (this.currentDirection.equals(Direction.LEFT)) {
+        targetX -= 5;
     }
+
+    // Check each robot in the world to see if they are within the target range
+    for (Robot robot : robotObjects) {
+        if (!robot.equals(this)) { // Ensure not checking against itself
+            int distance = 0;
+
+            if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
+                if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() > this.position.getY() && robot.getPosition().getY() <= targetY) {
+                    distance = robot.getPosition().getY() - this.position.getY();
+                }
+            } else if (this.currentDirection.equals(Direction.DOWN)) {
+                if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() < this.position.getY() && robot.getPosition().getY() >= targetY) {
+                    distance = this.position.getY() - robot.getPosition().getY();
+                }
+            } else if (this.currentDirection.equals(Direction.RIGHT)) {
+                if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() > this.position.getX() && robot.getPosition().getX() <= targetX) {
+                    distance = robot.getPosition().getX() - this.position.getX();
+                }
+            } else if (this.currentDirection.equals(Direction.LEFT)) {
+                if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() < this.position.getX() && robot.getPosition().getX() >= targetX) {
+                    distance = this.position.getX() - robot.getPosition().getX();
+                }
+            }
+
+            if (distance > 0 && distance <= 5) {
+                int damage = 0;
+                if (distance == 1) {
+                    damage = 5;
+                } else if (distance == 2) {
+                    damage = 4;
+                } else if (distance == 3) {
+                    damage = 3;
+                } else if (distance == 4) {
+                    damage = 2;
+                } else if (distance == 5) {
+                    damage = 1;
+                }
+                robot.getState().decrementShieldBy(damage);
+            }
+        }
+    }
+
+    // Decrement the shots for the firing robot
+    this.getState().decrementShots();
+}
+
+
 
     public ArrayList<String> displayObstaclesForLook(){
         return allObstacles;
