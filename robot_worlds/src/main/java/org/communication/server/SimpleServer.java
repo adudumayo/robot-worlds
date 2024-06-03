@@ -132,7 +132,7 @@ public class SimpleServer implements Runnable {
         if (shots == 0){
             data.put("message", "please reload bullets");
         }else{
-            data.put("message", "Miss");
+            data.put("message", "Hit");
         }
         data.put("shots", state.getShots());
         response.setState(state);
