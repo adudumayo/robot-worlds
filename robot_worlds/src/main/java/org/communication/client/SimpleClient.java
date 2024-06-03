@@ -4,6 +4,8 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 import com.google.gson.*;
+import org.communication.server.robotModels.*;
+
 import static org.communication.server.DisplayHeaders.*;
 import static org.communication.server.SimpleServer.validCommands;
 
@@ -36,25 +38,21 @@ public class SimpleClient {
                         System.out.println("Exiting game...");
                         System.exit(0);
                     }
-                    if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3 && launchCount ==0) {
+                    if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3 && launchCount == 0) {
                         launchCount += 1;
-                        System.out.println("Enter the Max Shield:");
-                        String maxShield = sc.nextLine();
-                        if (maxShield.startsWith("quit")) {
-                            System.out.println("Exiting game...");
-                            System.exit(0);
+                        try {
+                            Object robot = createRobotInstance(parts[1]);
+                            if (robot != null) {
+                                String shield = (String) robot.getClass().getMethod("getShield").invoke(robot);
+                                String shots = (String) robot.getClass().getMethod("getShots").invoke(robot);
+                                String[] stringArgs = {parts[1], shield, shots};
+                                Request request = new Request(parts[2], parts[0], stringArgs);
+                                out.println(gson.toJson(request));
+                                out.flush();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        System.out.println("Enter the Max Shots:");
-                        String maxShots = sc.nextLine();
-                        if (maxShots.startsWith("quit")) {
-                            System.out.println("Exiting game...");
-                            System.exit(0);
-                        }
-                        String[] stringArgs = {parts[1], maxShield, maxShots};
-                        Request request = new Request(parts[2], parts[0], stringArgs);
-                        out.println(gson.toJson(request));
-                        out.flush();
-
                     }else if(validCommands.contains(parts[0])){
                         if (parts.length > 1){
                             Request request = new Request();
@@ -100,6 +98,25 @@ public class SimpleClient {
         }
 
         }
+
+    private static Object createRobotInstance(String model) throws Exception {
+        switch (model.toLowerCase()) {
+            case "warpath":
+                return new Warpath();
+            case "venom":
+                return new Venom();
+            case "reaper":
+                return new Reaper();
+            case "demolisher":
+                return new Demolisher();
+            case "blaze":
+                return new Blaze();
+            // Add other cases for different robot models if necessary
+            default:
+                System.out.println("Invalid robot model: " + model);
+                return null;
+        }
+    }
 
 
 }
