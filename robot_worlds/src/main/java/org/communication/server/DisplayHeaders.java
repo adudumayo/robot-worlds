@@ -143,6 +143,32 @@ public class DisplayHeaders {
                     if (data.has("position")) {
                         System.out.println("  Position: " + data.get("position").getAsString());
                     }
+                    if (data.has("distance")){
+                        System.out.println("  Distance: " + data.get("distance").getAsString());
+                    }
+                    if (data.has("robot")){
+                        System.out.println("  Name: " + data.get("robot").getAsString());
+                    }
+                    if (data.has("state")) {
+                        System.out.println("  State:");
+                        JsonObject dataState = data.getAsJsonObject("state");
+                        if (dataState.has("position")) {
+                            System.out.println("    Position: " + dataState.get("position").getAsString());
+                        }
+                        if (dataState.has("direction")) {
+                            System.out.println("    Direction: " + dataState.get("direction").getAsString());
+                        }
+                        if (dataState.has("shields")) {
+                            System.out.println("    Shields: " + dataState.get("shields").getAsInt());
+                        }
+                        if (dataState.has("shots")) {
+                            System.out.println("    Shots: " + dataState.get("shots").getAsInt());
+                        }
+                        if (dataState.has("status")) {
+                            System.out.println("    Status: " + dataState.get("status").getAsString());
+                        }
+                    }
+
 
                 }
 

@@ -22,6 +22,7 @@ public class Robot {
     public boolean pathCheck;
     public boolean positionCheckRobot;
     public boolean pathCheckRobot;
+    private int distance;
     public ArrayList<String> obstaclesNorth = new ArrayList<>();
     public ArrayList<String> obstaclesEast = new ArrayList<>();
     public ArrayList<String> obstaclesSouth = new ArrayList<>();
@@ -50,6 +51,14 @@ public class Robot {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
     }
     //randomPosition(this,world);
     public Robot(String name) {
@@ -133,15 +142,15 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesNorth.add(String.format("North Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.put("obstacle", obs.getY() - position.getY());  // Store steps to the obstacle with key "obstacle"
+                obstacleSteps.put("North_obstacle", obs.getY() - position.getY());
             }
             for (Robot robot : world.robotLook) {
                 obstaclesNorth.add(String.format("North Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
-                obstacleSteps.put("robot", robot.getPosition().getY() - position.getY());  // Store steps to the robot with key "robot"
+                obstacleSteps.put("North_robot", robot.getPosition().getY() - position.getY());
             }
         } else {
             obstaclesNorth.add("No Obstacles for North");
-            obstacleSteps.put("none", 0);
+            obstacleSteps.put("North_none", 0);
         }
         world.obstaclesLook.clear();
         world.robotLook.clear();
@@ -153,15 +162,15 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesEast.add(String.format("East Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.put("obstacle", obs.getX() - position.getX());  // Store steps to the obstacle with key "obstacle"
+                obstacleSteps.put("East_obstacle", obs.getX() - position.getX());
             }
             for (Robot robot : world.robotLook) {
                 obstaclesEast.add(String.format("East Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
-                obstacleSteps.put("robot", robot.getPosition().getX() - position.getX());  // Store steps to the robot with key "robot"
+                obstacleSteps.put("East_robot", robot.getPosition().getX() - position.getX());
             }
         } else {
             obstaclesEast.add("No Obstacles for East");
-            obstacleSteps.put("none", 0);
+            obstacleSteps.put("East_none", 0);
         }
         world.obstaclesLook.clear();
         world.robotLook.clear();
@@ -173,15 +182,15 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesSouth.add(String.format("South Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.put("obstacle", position.getY() - obs.getY());  // Store steps to the obstacle with key "obstacle"
+                obstacleSteps.put("South_obstacle", position.getY() - obs.getY());
             }
             for (Robot robot : world.robotLook) {
                 obstaclesSouth.add(String.format("South Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
-                obstacleSteps.put("robot", position.getY() - robot.getPosition().getY());  // Store steps to the robot with key "robot"
+                obstacleSteps.put("South_robot", position.getY() - robot.getPosition().getY());
             }
         } else {
             obstaclesSouth.add("No Obstacles for South");
-            obstacleSteps.put("none", 0);
+            obstacleSteps.put("South_none", 0);
         }
         world.obstaclesLook.clear();
         world.robotLook.clear();
@@ -193,15 +202,15 @@ public class Robot {
             for (Obstacle obs : world.obstaclesLook) {
                 obstaclesWest.add(String.format("West Obstacle at (%d, %d) to (%d, %d)",
                         obs.getX(), obs.getY(), obs.getX() + 4, obs.getY() + 4));
-                obstacleSteps.put("obstacle", position.getX() - obs.getX());  // Store steps to the obstacle with key "obstacle"
+                obstacleSteps.put("West_obstacle", position.getX() - obs.getX());
             }
             for (Robot robot : world.robotLook) {
                 obstaclesWest.add(String.format("West Robot at (%d, %d)", robot.getPosition().getX(), robot.getPosition().getY()));
-                obstacleSteps.put("robot", position.getX() - robot.getPosition().getX());  // Store steps to the robot with key "robot"
+                obstacleSteps.put("West_robot", position.getX() - robot.getPosition().getX());
             }
         } else {
             obstaclesWest.add("No Obstacles for West");
-            obstacleSteps.put("none", 0);
+            obstacleSteps.put("West_none", 0);
         }
         world.obstaclesLook.clear();
         world.robotLook.clear();
@@ -213,66 +222,74 @@ public class Robot {
         allObstacles.addAll(obstaclesWest);
     }
 
-public void fireShots() {
-    World world = World.getInstance();
-    int targetX = this.position.getX();
-    int targetY = this.position.getY();
+    public Robot fireShots() {
+        World world = World.getInstance();
+        int targetX = this.position.getX();
+        int targetY = this.position.getY();
+        Robot hitRobot = null;
 
-    // Calculate the target position based on the current direction
-    if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
-        targetY += 5;
-    } else if (this.currentDirection.equals(Direction.DOWN)) {
-        targetY -= 5;
-    } else if (this.currentDirection.equals(Direction.RIGHT)) {
-        targetX += 5;
-    } else if (this.currentDirection.equals(Direction.LEFT)) {
-        targetX -= 5;
-    }
+        // Calculate the target position based on the current direction
+        if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
+            targetY += 5;
+        } else if (this.currentDirection.equals(Direction.DOWN)) {
+            targetY -= 5;
+        } else if (this.currentDirection.equals(Direction.RIGHT)) {
+            targetX += 5;
+        } else if (this.currentDirection.equals(Direction.LEFT)) {
+            targetX -= 5;
+        }
 
-    // Check each robot in the world to see if they are within the target range
-    for (Robot robot : robotObjects) {
-        if (!robot.equals(this)) { // Ensure not checking against itself
-            int distance = 0;
+        // Check each robot in the world to see if they are within the target range
+        for (Robot robot : robotObjects) {
+            if (!robot.equals(this)) { // Ensure not checking against itself
+                int distance = 0;
 
-            if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
-                if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() > this.position.getY() && robot.getPosition().getY() <= targetY) {
-                    distance = robot.getPosition().getY() - this.position.getY();
+                if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
+                    if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() > this.position.getY() && robot.getPosition().getY() <= targetY) {
+                        distance = robot.getPosition().getY() - this.position.getY();
+                    }
+                } else if (this.currentDirection.equals(Direction.DOWN)) {
+                    if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() < this.position.getY() && robot.getPosition().getY() >= targetY) {
+                        distance = this.position.getY() - robot.getPosition().getY();
+                    }
+                } else if (this.currentDirection.equals(Direction.RIGHT)) {
+                    if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() > this.position.getX() && robot.getPosition().getX() <= targetX) {
+                        distance = robot.getPosition().getX() - this.position.getX();
+                    }
+                } else if (this.currentDirection.equals(Direction.LEFT)) {
+                    if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() < this.position.getX() && robot.getPosition().getX() >= targetX) {
+                        distance = this.position.getX() - robot.getPosition().getX();
+                    }
                 }
-            } else if (this.currentDirection.equals(Direction.DOWN)) {
-                if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() < this.position.getY() && robot.getPosition().getY() >= targetY) {
-                    distance = this.position.getY() - robot.getPosition().getY();
-                }
-            } else if (this.currentDirection.equals(Direction.RIGHT)) {
-                if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() > this.position.getX() && robot.getPosition().getX() <= targetX) {
-                    distance = robot.getPosition().getX() - this.position.getX();
-                }
-            } else if (this.currentDirection.equals(Direction.LEFT)) {
-                if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() < this.position.getX() && robot.getPosition().getX() >= targetX) {
-                    distance = this.position.getX() - robot.getPosition().getX();
-                }
-            }
+                this.setDistance(distance);
 
-            if (distance > 0 && distance <= 5) {
-                int damage = 0;
-                if (distance == 1) {
-                    damage = 5;
-                } else if (distance == 2) {
-                    damage = 4;
-                } else if (distance == 3) {
-                    damage = 3;
-                } else if (distance == 4) {
-                    damage = 2;
-                } else if (distance == 5) {
-                    damage = 1;
-                }
-                robot.getState().decrementShieldBy(damage);
+                if (distance > 0 && distance <= 5) {
+                    hitRobot = robot;
+                    int damage = 0;
+                    if (distance == 1) {
+                        damage = 5;
+                    } else if (distance == 2) {
+                        damage = 4;
+                    } else if (distance == 3) {
+                        damage = 3;
+                    } else if (distance == 4) {
+                        damage = 2;
+                    } else if (distance == 5) {
+                        damage = 1;
+                    }
+
+                    robot.getState().decrementShieldBy(damage);
+                    hitRobot.setState(robot.getState());}
             }
         }
-    }
 
-    // Decrement the shots for the firing robot
-    this.getState().decrementShots();
-}
+        // Decrement the shots for the firing robot
+        this.getState().decrementShots();
+
+        return hitRobot;
+
+
+    }
 
 
 

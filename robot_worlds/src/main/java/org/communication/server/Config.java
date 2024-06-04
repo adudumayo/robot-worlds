@@ -5,7 +5,7 @@ public class Config {
     public static int topLeftY_world = 200;
     public static int bottomRightX_world = 200;
     public static int bottomRightY_world = -200;
-    public static int visibility = 50;
+    public static int visibility = 200;
     public static int maxShield = 20;
     public static int maxShot = 20;
     public static int reloadTime = 3;
