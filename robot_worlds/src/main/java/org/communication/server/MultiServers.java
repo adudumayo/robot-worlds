@@ -75,6 +75,13 @@ public class MultiServers{
                     terminateConnections();
                     sc.close();
                     System.exit(0);
+                } else {
+                    System.out.println("Sorry I did not understand '" + userInput + "'\n");
+                    System.out.println("""
+                            ##### THESE ARE THE COMMANDS I CAN UNDERSTAND #####
+                            \t> robots  - To view all robots in the world.
+                            \t> dump    - To view everything in the world.
+                            \t> quit    - To stop the server.""");
                 }
             }
         });
