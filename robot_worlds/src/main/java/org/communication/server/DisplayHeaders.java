@@ -83,9 +83,8 @@ public class DisplayHeaders {
                                "Position      : <" + robot.coordinatePosition() + ">\n" +
                                "Direction     : <" + robot.getCurrentDirection() + ">\n" +
                                "Shields       : <" + robot.getState().getShields() + ">\n"+
-                               "Shots         : <" + robot.getState().getShields() + ">\n" +
-                               "Status        : <" + robot.getState().getStatus() + "\n");
-
+                               "Shots         : <" + robot.getState().getShots() + ">\n" +
+                               "Status        : <" + robot.getState().getStatus() + ">\n");
         }
     }
 
