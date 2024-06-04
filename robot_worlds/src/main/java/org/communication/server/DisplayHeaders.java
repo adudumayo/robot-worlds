@@ -68,6 +68,11 @@ public class DisplayHeaders {
             }
         }
         System.out.println("\nNumber of robots in the world : " + robotObjects.size());
+        if (!robotObjects.isEmpty()) {
+            for (Robot robot: robotObjects) {
+                System.out.println("Bot " + robot.getName() + " is at " + robot.coordinatePosition());
+            }
+        }
     }
 
     public static void listRobots() {
