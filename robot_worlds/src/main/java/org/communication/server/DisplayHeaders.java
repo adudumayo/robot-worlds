@@ -2,7 +2,6 @@ package org.communication.server;
 
 import com.google.gson.*;
 import java.util.Iterator;
-import static org.communication.server.SimpleServer.robotNames;
 import static org.communication.server.SimpleServer.robotObjects;
 
 public class DisplayHeaders {
@@ -68,12 +67,7 @@ public class DisplayHeaders {
                 System.out.println(printObstacle);
             }
         }
-        System.out.println("\nNumber robots in the world : " + robotNames.size());
-        for (Object obs : world.obstacles) {
-            if (obs instanceof Robot robot) {
-                System.out.println(robot);
-            }
-        }
+        System.out.println("\nNumber of robots in the world : " + robotObjects.size());
     }
 
     public static void listRobots() {
