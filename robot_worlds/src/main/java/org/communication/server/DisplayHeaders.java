@@ -1,7 +1,7 @@
 package org.communication.server;
 
 import com.google.gson.*;
-
+import java.util.Iterator;
 import static org.communication.server.SimpleServer.robotNames;
 import static org.communication.server.SimpleServer.robotObjects;
 
@@ -76,15 +76,22 @@ public class DisplayHeaders {
         }
     }
 
-    public static void listRobots(){
+    public static void listRobots() {
         System.out.println("  ***List of Robots*** ");
-        for (Robot robot : robotObjects){
+        Iterator<Robot> iterator = robotObjects.iterator();
+
+        while (iterator.hasNext()) {
+            Robot robot = iterator.next();
+            if (robot.getState().getShields() == 0) {
+                iterator.remove();
+                continue;
+            }
             System.out.println("Name          : <" + robot.getName().toUpperCase() + ">\n" +
-                               "Position      : <" + robot.coordinatePosition() + ">\n" +
-                               "Direction     : <" + robot.getCurrentDirection() + ">\n" +
-                               "Shields       : <" + robot.getState().getShields() + ">\n"+
-                               "Shots         : <" + robot.getState().getShots() + ">\n" +
-                               "Status        : <" + robot.getState().getStatus() + ">\n");
+                    "Position      : <" + robot.coordinatePosition() + ">\n" +
+                    "Direction     : <" + robot.getCurrentDirection() + ">\n" +
+                    "Shields       : <" + robot.getState().getShields() + ">\n"+
+                    "Shots         : <" + robot.getState().getShots() + ">\n" +
+                    "Status        : <" + robot.getState().getStatus() + ">\n");
         }
     }
 

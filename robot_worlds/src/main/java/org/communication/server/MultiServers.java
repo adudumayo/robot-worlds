@@ -143,6 +143,4 @@ public class MultiServers{
         int y = Integer.parseInt(parts[1].replace(")", "").trim());
         return new int[]{x, y};
     }
-
- 
 }
