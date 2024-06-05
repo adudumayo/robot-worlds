@@ -80,7 +80,7 @@ public class DisplayHeaders {
         System.out.println("\nNumber of robots in the world : " + robotObjects.size());
         if (!robotObjects.isEmpty()) {
             for (Robot robot: robotObjects) {
-                System.out.println("Bot " + robot.getName() + " is at " + robot.coordinatePosition() + " facing " + robot.getState().getDirection() + " and this is a bug, but we can skip it.");
+                System.out.println("Bot " + robot.getName() + " is at " + robot.coordinatePosition() + " facing " + robot.getCurrentDirection());
             }
         }
     }
