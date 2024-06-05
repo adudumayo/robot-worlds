@@ -115,7 +115,6 @@ public class Robot {
             return false;
         }
         if(pathCheckRobot){
-            System.out.println("test");
             return false;
         }
         if (newPosition.isIn(TOP_LEFT,BOTTOM_RIGHT)){
