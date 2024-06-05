@@ -75,17 +75,17 @@ public class Robot {
 
     public void updateDirection(boolean directionHeading) {
         switch (currentDirection) {
-            case NORTH, UP:
-                currentDirection = directionHeading ? Direction.RIGHT : Direction.LEFT;
+            case NORTH:
+                currentDirection = directionHeading ? Direction.EAST : Direction.WEST;
                 break;
-            case RIGHT:
-                currentDirection = directionHeading ? Direction.DOWN : Direction.UP;
+            case EAST:
+                currentDirection = directionHeading ? Direction.SOUTH : Direction.NORTH;
                 break;
-            case DOWN:
-                currentDirection = directionHeading ? Direction.LEFT : Direction.RIGHT;
+            case SOUTH:
+                currentDirection = directionHeading ? Direction.WEST : Direction.EAST;
                 break;
-            case LEFT:
-                currentDirection = directionHeading ? Direction.UP : Direction.DOWN;
+            case WEST:
+                currentDirection = directionHeading ? Direction.NORTH : Direction.SOUTH;
                 break;
         }
     }
@@ -93,13 +93,13 @@ public class Robot {
         int newX = this.position.getX();
         int newY = this.position.getY();
 
-        if (Direction.NORTH.equals(this.currentDirection) || Direction.UP.equals(this.currentDirection)) {
+        if (Direction.NORTH.equals(this.currentDirection)) {
             newY = newY + nrSteps;
-        }else if (Direction.DOWN.equals(this.currentDirection)){
+        }else if (Direction.SOUTH.equals(this.currentDirection)){
             newY = newY - nrSteps;
-        }else if (Direction.LEFT.equals(this.currentDirection)){
+        }else if (Direction.WEST.equals(this.currentDirection)){
             newX = newX - nrSteps;
-        }else if (Direction.RIGHT.equals(this.currentDirection)){
+        }else if (Direction.EAST.equals(this.currentDirection)){
             newX = newX + nrSteps;
         }
         World world = World.getInstance();
@@ -228,13 +228,13 @@ public class Robot {
         Robot hitRobot = null;
 
         // Calculate the target position based on the current direction
-        if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
+        if (this.currentDirection.equals(Direction.NORTH)) {
             targetY += 5;
-        } else if (this.currentDirection.equals(Direction.DOWN)) {
+        } else if (this.currentDirection.equals(Direction.SOUTH)) {
             targetY -= 5;
-        } else if (this.currentDirection.equals(Direction.RIGHT)) {
+        } else if (this.currentDirection.equals(Direction.EAST)) {
             targetX += 5;
-        } else if (this.currentDirection.equals(Direction.LEFT)) {
+        } else if (this.currentDirection.equals(Direction.WEST)) {
             targetX -= 5;
         }
 
@@ -243,19 +243,19 @@ public class Robot {
             if (!robot.equals(this)) { // Ensure not checking against itself
                 int distance = 0;
 
-                if (this.currentDirection.equals(Direction.NORTH) || this.currentDirection.equals(Direction.UP)) {
+                if (this.currentDirection.equals(Direction.NORTH)) {
                     if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() > this.position.getY() && robot.getPosition().getY() <= targetY) {
                         distance = robot.getPosition().getY() - this.position.getY();
                     }
-                } else if (this.currentDirection.equals(Direction.DOWN)) {
+                } else if (this.currentDirection.equals(Direction.SOUTH)) {
                     if (robot.getPosition().getX() == this.position.getX() && robot.getPosition().getY() < this.position.getY() && robot.getPosition().getY() >= targetY) {
                         distance = this.position.getY() - robot.getPosition().getY();
                     }
-                } else if (this.currentDirection.equals(Direction.RIGHT)) {
+                } else if (this.currentDirection.equals(Direction.EAST)) {
                     if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() > this.position.getX() && robot.getPosition().getX() <= targetX) {
                         distance = robot.getPosition().getX() - this.position.getX();
                     }
-                } else if (this.currentDirection.equals(Direction.LEFT)) {
+                } else if (this.currentDirection.equals(Direction.WEST)) {
                     if (robot.getPosition().getY() == this.position.getY() && robot.getPosition().getX() < this.position.getX() && robot.getPosition().getX() >= targetX) {
                         distance = this.position.getX() - robot.getPosition().getX();
                     }
