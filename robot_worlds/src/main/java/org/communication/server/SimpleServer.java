@@ -40,7 +40,7 @@ public class SimpleServer implements Runnable {
 
                 try{
                     Request request = gson.fromJson(messageFromClient, Request.class);
-                    if (request.getCommand().equals("launch")){
+                    if (request.getCommand().equals("launch")) {
                         String robotName = request.getRobotName();
                         if (!robotNames.contains(robotName)) {
                             robot = new Robot(robotName);
@@ -53,9 +53,12 @@ public class SimpleServer implements Runnable {
                             out.println(sendResponsetoClient(robot, gson, shield, shots));
                             robotObjects.add(robot);
 
-                        }else {
+                        } else {
                             errorResponse(robot, gsonPretty, "ERROR", "Too many of you in this world");
                         }
+
+                    }else if (robot != null && robot.getState().getShields() <= 0) {
+                        out.println("game over");
 
 
                     }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire")) {
@@ -100,7 +103,6 @@ public class SimpleServer implements Runnable {
                         }
 
 
-
                     }else if (request.getCommand().equals("look") && validCommands.contains("look")) {
 
                         String newRobotCommand = request.getCommand();
@@ -119,6 +121,8 @@ public class SimpleServer implements Runnable {
                         String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
                         out.println(errorResponse);
                     }
+
+
 
                 }catch (JsonSyntaxException e){
                     System.out.println("invalid json received!");
@@ -164,6 +168,9 @@ public class SimpleServer implements Runnable {
         Map<String, Object> hitRobotState = new HashMap<>();
         hitRobotState.put("position", hitRobot.coordinatePosition());
         hitRobotState.put("direction", hitRobot.getCurrentDirection());
+        if (hitRobot.getState().getShields() == 0){
+            hitRobot.getState().setStatus("DEAD");
+        }
         hitRobotState.put("shields", hitRobot.getState().getShields());
         hitRobotState.put("shots", hitRobot.getState().getShots());
         hitRobotState.put("status", hitRobot.getState().getStatus());

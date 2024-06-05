@@ -78,8 +78,8 @@ public class SimpleClient {
             inputThread.start();
             String serverResponse;
             while ((serverResponse = in.readLine()) != null) {
-                if (serverResponse.equals("quit")){
-                    System.out.println("You're out, bye!");
+                if (serverResponse.equals("quit") || serverResponse.equals("game over")){
+                    System.out.println("Game Over, bye!");
                     keepRunning = false;
                     System.exit(0);
                     break;
