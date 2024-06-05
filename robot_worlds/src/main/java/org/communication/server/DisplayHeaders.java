@@ -43,6 +43,16 @@ public class DisplayHeaders {
         System.out.println("'robots' - Lists all robots including the robot's name and state");
         System.out.println("'dump' - Displays a representation of the worlds state\n");
     }
+    public static void helpMenu() {
+        System.out.println("\nHelp Menu");
+        System.out.println("'launch' - launch a new robot into the world");
+        System.out.println("'look' - Allows your robot to look around");
+        System.out.println("'state' - View the current state of your robot\n");
+        System.out.println("forward - move the robot forward e.g forward 10 ");
+        System.out.println("back - move the robot backwards e.g back 50");
+        System.out.println("turn - turn the robot either left or right e.g turn left");
+        System.out.println("fire - shoot your shot");
+    }
     public static void configMenu(){
         System.out.println("\nLet's start by configuring the world size." +
                 "\nEnter the top left and bottom right coordinates to create the world " +

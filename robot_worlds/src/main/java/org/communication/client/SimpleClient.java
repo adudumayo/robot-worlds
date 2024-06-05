@@ -70,7 +70,10 @@ public class SimpleClient {
                             out.flush();
                         }
                     }else{
-                        System.out.println("Invalid Command, try again!");
+                        System.out.println("Invalid Command. Try again or enter 'help'");
+                        if (userInput.startsWith("help")) {
+                            helpMenu();
+                        }
 
                     }
                 }
