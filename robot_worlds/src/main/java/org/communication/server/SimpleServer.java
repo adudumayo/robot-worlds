@@ -17,7 +17,7 @@ public class SimpleServer implements Runnable {
     private final BufferedReader in;
     private final PrintStream out;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
-    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state", "fire")); //ArrayList to store robots valid commands
+    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state", "fire", "orientation")); //ArrayList to store robots valid commands
     public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
     public static ArrayList<Robot> robotObjects = new ArrayList<>();
     Gson gson = new Gson();
@@ -61,7 +61,7 @@ public class SimpleServer implements Runnable {
                         out.println("game over");
 
 
-                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire")) {
+                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire") && !request.getCommand().equals("orientation")) {
                         try {
                             if (!turns.contains(request.getArguments()[0])) {
                                 String newRobotCommand = request.getCommand() + " " + request.getArguments()[0];
@@ -112,10 +112,14 @@ public class SimpleServer implements Runnable {
                         String jsonToClient = successfulLookResponse(robot, gson, "OK", robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
-                    }else if (request.getCommand().equals("state") && validCommands.contains("state")){
+                    }else if (request.getCommand().equals("state") && validCommands.contains("state")) {
                         String jsonToClient = sendStateResponseToClient(robot, gson, robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
+                    }else if (request.getCommand().equals("orientation") && validCommands.contains("orientation")){
+                        assert robot != null;
+                        String jasonToClient = sendOrientationResponseToClient(robot, gson);
+                        out.println(jasonToClient);
 
                     }else {
                         String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
@@ -150,7 +154,6 @@ public class SimpleServer implements Runnable {
         data.put("shots", state.getShots());
         response.setState(state);
         response.setData(data);
-
 
         return gson.toJson(response);
 
@@ -188,119 +191,128 @@ public class SimpleServer implements Runnable {
 
 
     private String sendStateResponseToClient(Robot robot, Gson gson, int shield, int shots){
-            Response response = new Response();
-            // Create and set the state object
-            State state = new State(shield, shots);
-            state.setPosition(robot.coordinatePosition());
-            state.setDirection(robot.getCurrentDirection());
-            response.setState(state);
-            return gson.toJson(response);
+        Response response = new Response();
+        // Create and set the state object
+        State state = new State(shield, shots);
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        response.setState(state);
+        return gson.toJson(response);
         }
 
-        private String sendResponsetoClient(Robot robot, Gson gson, int shield, int shots){
-            Response response = new Response();
-            // Create and set the state object
-            State state = new State(shield,shots);
-            state.setPosition(robot.coordinatePosition());
-            state.setDirection(robot.getCurrentDirection());
-            robot.setState(state);
-            state.setStatus("NORMAL");
-            response.setState(state);
+    private String sendOrientationResponseToClient(Robot robot, Gson gson){
+        Response response = new Response();
+        Map<String, Object> data = new HashMap<>();
+        data.put("direction", robot.getCurrentDirection() );
+        response.setData(data);
+        // Create and set the state object
+        return gson.toJson(response);
+    }
 
-            response.setResult("OK");
-            // create and set the data map
-            Map<String, Object> data = new HashMap<>();
-            data.put("position", robot.coordinatePosition());
-            data.put("visibility", Config.getVisibility());
-            data.put("reload", Config.getReloadTime());
-            data.put("repair", Config.getRepairTime());
-            data.put("shields", robot.getState().getShields());
-            response.setData(data);
+    private String sendResponsetoClient(Robot robot, Gson gson, int shield, int shots){
+        Response response = new Response();
+        // Create and set the state object
+        State state = new State(shield,shots);
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        robot.setState(state);
+        state.setStatus("NORMAL");
+        response.setState(state);
 
-            return gson.toJson(response);
+        response.setResult("OK");
+        // create and set the data map
+        Map<String, Object> data = new HashMap<>();
+        data.put("position", robot.coordinatePosition());
+        data.put("visibility", Config.getVisibility());
+        data.put("reload", Config.getReloadTime());
+        data.put("repair", Config.getRepairTime());
+        data.put("shields", robot.getState().getShields());
+        response.setData(data);
+
+        return gson.toJson(response);
+    }
+
+    private String errorResponse(Robot robot, Gson gson, String setResult, String message){
+        Response response = new Response();
+        response.setResult(setResult);
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", message);
+        response.setData(data);
+        return gson.toJson(response);
+
+    }
+    private String successfulResponse(Robot robot, Gson gson, String setResult, int shield, int shots){
+        Response response = new Response();
+        response.setResult(setResult);
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", robot.getStatus());
+        response.setData(data);
+
+        //Create and set the state object
+        State state = new State(shield, shots);
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        state.setStatus("NORMAL");
+        response.setState(state);
+
+        return gson.toJson(response);
+
+    }
+    private String successfulLookResponse(Robot robot, Gson gson, String setResult, int shield, int shots) {
+        // Create the response object
+        Map<String, Object> data = new HashMap<>();
+        ArrayList<ObstacleType> objects = new ArrayList<>();
+        Response response = new Response();
+
+        // Add North obstacles
+        if (robot.obstacleSteps.containsKey("North_obstacle") && robot.obstacleSteps.get("North_obstacle") != 0) {
+            objects.add(new ObstacleType("North", "obstacle", robot.obstacleSteps.get("North_obstacle")));
+        }
+        if (robot.obstacleSteps.containsKey("North_robot") && robot.obstacleSteps.get("North_robot") != 0) {
+            objects.add(new ObstacleType("North", "robot", robot.obstacleSteps.get("North_robot")));
         }
 
-        private String errorResponse(Robot robot, Gson gson, String setResult, String message){
-            Response response = new Response();
-            response.setResult(setResult);
-            Map<String, Object> data = new HashMap<>();
-            data.put("message", message);
-            response.setData(data);
-            return gson.toJson(response);
-
+        // Add East obstacles
+        if (robot.obstacleSteps.containsKey("East_obstacle") && robot.obstacleSteps.get("East_obstacle") != 0) {
+            objects.add(new ObstacleType("East", "obstacle", robot.obstacleSteps.get("East_obstacle")));
         }
-        private String successfulResponse(Robot robot, Gson gson, String setResult, int shield, int shots){
-            Response response = new Response();
-            response.setResult(setResult);
-            Map<String, Object> data = new HashMap<>();
-            data.put("message", robot.getStatus());
-            response.setData(data);
-
-            //Create and set the state object
-            State state = new State(shield, shots);
-            state.setPosition(robot.coordinatePosition());
-            state.setDirection(robot.getCurrentDirection());
-            state.setStatus("NORMAL");
-            response.setState(state);
-
-            return gson.toJson(response);
-
+        if (robot.obstacleSteps.containsKey("East_robot") && robot.obstacleSteps.get("East_robot") != 0) {
+            objects.add(new ObstacleType("East", "robot", robot.obstacleSteps.get("East_robot")));
         }
-        private String successfulLookResponse(Robot robot, Gson gson, String setResult, int shield, int shots) {
-            // Create the response object
-            Map<String, Object> data = new HashMap<>();
-            ArrayList<ObstacleType> objects = new ArrayList<>();
-            Response response = new Response();
 
-            // Add North obstacles
-            if (robot.obstacleSteps.containsKey("North_obstacle") && robot.obstacleSteps.get("North_obstacle") != 0) {
-                objects.add(new ObstacleType("North", "obstacle", robot.obstacleSteps.get("North_obstacle")));
-            }
-            if (robot.obstacleSteps.containsKey("North_robot") && robot.obstacleSteps.get("North_robot") != 0) {
-                objects.add(new ObstacleType("North", "robot", robot.obstacleSteps.get("North_robot")));
-            }
-
-            // Add East obstacles
-            if (robot.obstacleSteps.containsKey("East_obstacle") && robot.obstacleSteps.get("East_obstacle") != 0) {
-                objects.add(new ObstacleType("East", "obstacle", robot.obstacleSteps.get("East_obstacle")));
-            }
-            if (robot.obstacleSteps.containsKey("East_robot") && robot.obstacleSteps.get("East_robot") != 0) {
-                objects.add(new ObstacleType("East", "robot", robot.obstacleSteps.get("East_robot")));
-            }
-
-            // Add South obstacles
-            if (robot.obstacleSteps.containsKey("South_obstacle") && robot.obstacleSteps.get("South_obstacle") != 0) {
-                objects.add(new ObstacleType("South", "obstacle", robot.obstacleSteps.get("South_obstacle")));
-            }
-            if (robot.obstacleSteps.containsKey("South_robot") && robot.obstacleSteps.get("South_robot") != 0) {
-                objects.add(new ObstacleType("South", "robot", robot.obstacleSteps.get("South_robot")));
-            }
-
-            // Add West obstacles
-            if (robot.obstacleSteps.containsKey("West_obstacle") && robot.obstacleSteps.get("West_obstacle") != 0) {
-                objects.add(new ObstacleType("West", "obstacle", robot.obstacleSteps.get("West_obstacle")));
-            }
-            if (robot.obstacleSteps.containsKey("West_robot") && robot.obstacleSteps.get("West_robot") != 0) {
-                objects.add(new ObstacleType("West", "robot", robot.obstacleSteps.get("West_robot")));
-            }
-
-            response.setResult(setResult);
-
-            // Create the data map and populate it
-            data.put("message", robot.getStatus());
-            data.put("object", objects);
-            response.setData(data);
-
-            // Create and set the state object
-            State state = new State(shield, shots);
-            state.setPosition(robot.coordinatePosition());
-            state.setDirection(robot.getCurrentDirection());
-            state.setStatus("NORMAL");
-            response.setState(state);
-
-            // Convert response to JSON
-            return gson.toJson(response);
+        // Add South obstacles
+        if (robot.obstacleSteps.containsKey("South_obstacle") && robot.obstacleSteps.get("South_obstacle") != 0) {
+            objects.add(new ObstacleType("South", "obstacle", robot.obstacleSteps.get("South_obstacle")));
         }
+        if (robot.obstacleSteps.containsKey("South_robot") && robot.obstacleSteps.get("South_robot") != 0) {
+            objects.add(new ObstacleType("South", "robot", robot.obstacleSteps.get("South_robot")));
+        }
+
+        // Add West obstacles
+        if (robot.obstacleSteps.containsKey("West_obstacle") && robot.obstacleSteps.get("West_obstacle") != 0) {
+            objects.add(new ObstacleType("West", "obstacle", robot.obstacleSteps.get("West_obstacle")));
+        }
+        if (robot.obstacleSteps.containsKey("West_robot") && robot.obstacleSteps.get("West_robot") != 0) {
+            objects.add(new ObstacleType("West", "robot", robot.obstacleSteps.get("West_robot")));
+        }
+
+        response.setResult(setResult);
+
+        // Create the data map and populate it
+        data.put("message", robot.getStatus());
+        data.put("object", objects);
+        response.setData(data);
+
+        // Create and set the state object
+        State state = new State(shield, shots);
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        state.setStatus("NORMAL");
+        response.setState(state);
+
+        // Convert response to JSON
+        return gson.toJson(response);
+    }
 }
 
 

@@ -7,12 +7,15 @@ public class State {
     private int shots;// number of shots left in the gun
     private String status;
 
+    public State(Direction direction){
+        this.direction = direction;
+    }
+
     public State(int shots){
         this.shots = shots;
     }
 
     public State(int shields, int shots){
-
         this.shields = shields;
         this.shots = shots;
         this.status = "NORMAL";

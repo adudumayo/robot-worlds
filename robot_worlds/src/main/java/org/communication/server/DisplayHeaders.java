@@ -155,6 +155,9 @@ public class DisplayHeaders {
                     if (data.has("visibility")) {
                         System.out.println("  Visibility: " + data.get("visibility").getAsString());
                     }
+                    if (data.has("direction")){
+                        System.out.println("  Direction: " + data.get("direction").getAsString());
+                    }
                     if (data.has("position")) {
                         System.out.println("  Position: " + data.get("position").getAsString());
                     }
@@ -208,7 +211,7 @@ public class DisplayHeaders {
                     }
                 }
             } else {
-                System.out.println("Received a non-JSON object response: " + serverResponse);
+                System.out.println(serverResponse);
             }
         } catch (JsonSyntaxException e) {
             System.out.println("Failed to parse JSON: " + e.getMessage());
