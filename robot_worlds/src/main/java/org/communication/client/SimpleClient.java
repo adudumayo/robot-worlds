@@ -12,7 +12,7 @@ import static org.communication.server.SimpleServer.validCommands;
 public class SimpleClient {
 
     public static boolean keepRunning = true;
-    public static int launchCount = 0;
+    public static boolean launchCount = true;
 
     public static void main(String[] args) throws IOException {
 
@@ -38,43 +38,45 @@ public class SimpleClient {
                         System.out.println("Exiting game...");
                         System.exit(0);
                     }
-                    if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3 && launchCount == 0) {
-                        launchCount += 1;
-                        try {
-                            Object robot = createRobotInstance(parts[1]);
-                            if (robot != null) {
-                                String shield = (String) robot.getClass().getMethod("getShield").invoke(robot);
-                                String shots = (String) robot.getClass().getMethod("getShots").invoke(robot);
-                                String[] stringArgs = {parts[1], shield, shots};
-                                Request request = new Request(parts[2], parts[0], stringArgs);
-                                out.println(gson.toJson(request));
+                    try {
+                        if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3) {
+                            if (launchCount) {
+                                launchCount = false;
+                                Object robot = createRobotInstance(parts[1]);
+                                if (robot != null) {
+                                    String shield = (String) robot.getClass().getMethod("getShield").invoke(robot);
+                                    String shots = (String) robot.getClass().getMethod("getShots").invoke(robot);
+                                    String[] stringArgs = {parts[1], shield, shots};
+                                    Request request = new Request(parts[2], parts[0], stringArgs);
+                                    out.println(gson.toJson(request));
+                                    out.flush();
+                                }
+                            } else {
+                                System.out.println("You have already launched!");
+                            }
+                        } else if (validCommands.contains(parts[0])) {
+                            if (parts.length > 1) {
+                                Request request = new Request();
+                                request.setCommand(parts[0]);
+                                request.setArguments(new String[]{parts[1]});
+                                String jsonRequest = gson.toJson(request);
+                                out.println(jsonRequest);
+                                out.flush();
+                            } else {
+                                Request request = new Request();
+                                request.setCommand(parts[0]);
+                                String jsonRequest = gson.toJson(request);
+                                out.println(jsonRequest);
                                 out.flush();
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } else {
+                            System.out.println("Invalid Command. Try again or enter 'help'");
+                            if (userInput.startsWith("help")) {
+                                helpMenu();
+                            }
                         }
-                    }else if(validCommands.contains(parts[0])){
-                        if (parts.length > 1){
-                            Request request = new Request();
-                            request.setCommand(parts[0]);
-                            request.setArguments(new String[]{parts[1]});
-                            String jsonRequest = gson.toJson(request);
-                            out.println(jsonRequest);
-                            out.flush();
-
-                        }else {
-                            Request request = new Request();
-                            request.setCommand(parts[0]);
-                            String jsonRequest = gson.toJson(request);
-                            out.println(jsonRequest);
-                            out.flush();
-                        }
-                    }else{
-                        System.out.println("Invalid Command. Try again or enter 'help'");
-                        if (userInput.startsWith("help")) {
-                            helpMenu();
-                        }
-
+                    } catch (Exception e) {
+                        System.out.println("Invalid input: " + e.getMessage());
                     }
                 }
             });

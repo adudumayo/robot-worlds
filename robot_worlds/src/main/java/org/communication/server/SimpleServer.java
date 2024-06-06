@@ -21,7 +21,6 @@ public class SimpleServer implements Runnable {
     public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
     public static ArrayList<Robot> robotObjects = new ArrayList<>();
     Gson gson = new Gson();
-    Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
 
 
 
@@ -54,7 +53,8 @@ public class SimpleServer implements Runnable {
                             robotObjects.add(robot);
 
                         } else {
-                            errorResponse(robot, gsonPretty, "ERROR", "Too many of you in this world");
+                            String jsonToClient = errorResponse(robot, gson, "ERROR", "Too many of you in this world");
+                            out.println(jsonToClient);
                         }
 
                     }else if (robot != null && robot.getState().getShields() <= 0) {
@@ -62,6 +62,7 @@ public class SimpleServer implements Runnable {
 
 
                     }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire") && !request.getCommand().equals("orientation")) {
+
                         try {
                             if (!turns.contains(request.getArguments()[0])) {
                                 String newRobotCommand = request.getCommand() + " " + request.getArguments()[0];
@@ -104,11 +105,9 @@ public class SimpleServer implements Runnable {
 
 
                     }else if (request.getCommand().equals("look") && validCommands.contains("look")) {
-
                         String newRobotCommand = request.getCommand();
                         Command command = Command.create(newRobotCommand);
                         robot.handleCommand(command);
-
                         String jsonToClient = successfulLookResponse(robot, gson, "OK", robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
@@ -125,8 +124,6 @@ public class SimpleServer implements Runnable {
                         String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
                         out.println(errorResponse);
                     }
-
-
 
                 }catch (JsonSyntaxException e){
                     System.out.println("invalid json received!");
