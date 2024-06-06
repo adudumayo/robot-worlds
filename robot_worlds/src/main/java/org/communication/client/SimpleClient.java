@@ -89,6 +89,9 @@ public class SimpleClient {
                     System.exit(0);
                     break;
                 }
+                if (serverResponse.contains("Too many of you in this world")) {
+                    launchCount = true; // Reset the launchCount flag to allow launching a new robot
+                }
 //                System.out.println(serverResponse);
                 displayServerResponse(serverResponse);
                 System.out.println();
