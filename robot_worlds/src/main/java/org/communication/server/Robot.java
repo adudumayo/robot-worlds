@@ -23,6 +23,7 @@ public class Robot {
     public boolean positionCheckRobot;
     public boolean pathCheckRobot;
     private int distance;
+    private String robotType;
     public ArrayList<String> obstaclesNorth = new ArrayList<>();
     public ArrayList<String> obstaclesEast = new ArrayList<>();
     public ArrayList<String> obstaclesSouth = new ArrayList<>();
@@ -60,13 +61,19 @@ public class Robot {
     public void setDistance(int distance) {
         this.distance = distance;
     }
+
+    public String getRobotType() {
+        return robotType;
+    }
+
     //randomPosition(this,world);
-    public Robot(String name) {
+    public Robot(String name, String robotType) {
         World world = World.getInstance();
         this.name = name;
         this.status = "NORMAL";
         this.position = CENTRE;
         this.currentDirection = Direction.NORTH;
+        this.robotType = robotType;
     }
 
     public boolean handleCommand(Command command) {

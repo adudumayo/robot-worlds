@@ -1,6 +1,8 @@
 package org.communication.server;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +11,8 @@ import java.util.Map;
 
 import com.google.gson.*;
 import org.communication.client.Request;
+import org.communication.server.robotModels.*;
+
 import static org.communication.server.Fire.damagedRobot;
 
 public class SimpleServer implements Runnable {
@@ -17,7 +21,7 @@ public class SimpleServer implements Runnable {
     private final BufferedReader in;
     private final PrintStream out;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
-    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state", "fire", "orientation")); //ArrayList to store robots valid commands
+    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state", "fire", "orientation", "reload")); //ArrayList to store robots valid commands
     public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
     public static ArrayList<Robot> robotObjects = new ArrayList<>();
     Gson gson = new Gson();
@@ -41,8 +45,9 @@ public class SimpleServer implements Runnable {
                     Request request = gson.fromJson(messageFromClient, Request.class);
                     if (request.getCommand().equals("launch")) {
                         String robotName = request.getRobotName();
+                        String robotType = request.getArguments()[0];
                         if (!robotNames.contains(robotName)) {
-                            robot = new Robot(robotName);
+                            robot = new Robot(robotName,robotType);
                             robot.setName(robotName);
                             request.setRobot(robotName);
                             robotNames.add(robotName);
@@ -61,7 +66,7 @@ public class SimpleServer implements Runnable {
                         out.println("game over");
 
 
-                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire") && !request.getCommand().equals("orientation")) {
+                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire") && !request.getCommand().equals("orientation") && !request.getCommand().equals("reload")) {
 
                         try {
                             if (!turns.contains(request.getArguments()[0])) {
@@ -115,9 +120,14 @@ public class SimpleServer implements Runnable {
                         String jsonToClient = sendStateResponseToClient(robot, gson, robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
-                    }else if (request.getCommand().equals("orientation") && validCommands.contains("orientation")){
+                    }else if (request.getCommand().equals("orientation") && validCommands.contains("orientation")) {
                         assert robot != null;
                         String jasonToClient = sendOrientationResponseToClient(robot, gson);
+                        out.println(jasonToClient);
+
+                    }else if (request.getCommand().equals("reload") && validCommands.contains("reload")){
+                        assert robot != null;
+                        String jasonToClient = reloadResponse(robot, gson);
                         out.println(jasonToClient);
 
                     }else {
@@ -139,6 +149,54 @@ public class SimpleServer implements Runnable {
 
         }
 
+
+
+    private void reloadShots(Robot robot, Object robotInstance) {
+        try {
+            Method getShotsMethod = robotInstance.getClass().getMethod("getShots");
+            String shots = (String) getShotsMethod.invoke(robotInstance);
+            int reloadShots = Integer.parseInt(shots);
+            robot.getState().setShots(reloadShots);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Error getting shots for robot type: " + robotInstance.getClass().getSimpleName(), e);
+        }
+    }
+
+    private String reloadResponse(Robot robot, Gson gson) {
+        Object robotInstance;
+        switch (robot.getRobotType().toLowerCase()) {
+            case "venom":
+                robotInstance = new Venom();
+                break;
+            case "blaze":
+                robotInstance = new Blaze();
+                break;
+            case "demolisher":
+                robotInstance = new Demolisher();
+                break;
+            case "reaper":
+                robotInstance = new Reaper();
+                break;
+            case "warpath":
+                robotInstance = new Warpath();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown robot type: " + robot.getRobotType());
+        }
+
+        reloadShots(robot, robotInstance);
+
+        Response response = new Response();
+        response.setResult("Reloaded");
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", "Reloading Complete!");
+        State state = new State(robot.getState().getShields(), robot.getState().getShots());
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        response.setState(state);
+        response.setData(data);
+        return gson.toJson(response);
+    }
     private String sendFireResponseMiss( Gson gson, int shots){
         Map<String, Object> data = new HashMap<>();
         Response response = new Response();
