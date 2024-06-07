@@ -92,7 +92,7 @@ public class SimpleServer implements Runnable {
                             }
 
                         } catch (IllegalArgumentException | NullPointerException e) {
-                            String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments. Try launching first.");
+                            String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments.");
                             out.println(errorResponse);
 
                         }
@@ -154,7 +154,7 @@ public class SimpleServer implements Runnable {
 
                 }
                 catch (IllegalArgumentException | NullPointerException e) {
-                    String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments. Try launching first.");
+                    String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments.");
                     out.println(errorResponse);
 
                 }
