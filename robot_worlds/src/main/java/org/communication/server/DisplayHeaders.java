@@ -13,6 +13,13 @@ public class DisplayHeaders {
         System.out.println("'state' - View the current state of your robot\n");
         System.out.println("launch a robot to start the game: ");;
     }
+    public static void viewMenu(){
+        System.out.println("\nWorld Commands");
+        System.out.println("'quit' - Disconnects all robots and ends the world ");
+        System.out.println("'robots' - Lists all robots including the robot's name and state");
+        System.out.println("'view' - displays all the available/acceptable commands");
+        System.out.println("'dump' - Displays a representation of the worlds state\n");
+    }
     public static void displayHeaderRobot(){
         System.out.println("You have successfully connected to the game server!!!");
         System.out.println("\n*************************************************");
@@ -36,12 +43,6 @@ public class DisplayHeaders {
     public static void displayWaitingForConnections(){
         System.out.println("\t\tServer running & waiting for client connections.");
         System.out.println("-----------------------------------------------------------------------");
-    }
-    public static void displayWorldCommands(){
-        System.out.println("\nWorld Commands");
-        System.out.println("'quit' - Disconnects all robots and ends the world ");
-        System.out.println("'robots' - Lists all robots including the robot's name and state");
-        System.out.println("'dump' - Displays a representation of the worlds state\n");
     }
     public static void helpMenu() {
         System.out.println("\nHelp Menu");

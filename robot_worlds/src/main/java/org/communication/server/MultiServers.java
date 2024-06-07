@@ -51,9 +51,15 @@ public class MultiServers{
             System.exit(0);
         }
     }
-
+/*thread for server commands
+ * robots - lists all the robots in the world.
+ * dump - displays a representation of the world's state.
+ * quit - terminates the server and all active connections.
+ * view - displays all the available/acceptable commands.
+ */
     private static void startUserInputThread(Scanner sc) {
         Thread userInputThread = new Thread(() -> {
+            System.out.println("enter 'view' for available commands.");
             while (true) {
                 String userInput = sc.nextLine();
 
@@ -67,7 +73,7 @@ public class MultiServers{
                 } else if (userInput.equals("dump")) {
                     displayObstaclesAndRobots();
                 }else if (userInput.equalsIgnoreCase("view")){
-                    displayWorldCommands();
+                    viewMenu();
 
                 } else if (userInput.equals("quit")) {
                     flag = true;
@@ -76,12 +82,7 @@ public class MultiServers{
                     sc.close();
                     System.exit(0);
                 } else {
-                    System.out.println("Sorry I did not understand '" + userInput + "'\n");
-                    System.out.println("""
-                            ##### THESE ARE THE COMMANDS I CAN UNDERSTAND #####
-                            \t> robots  - To view all robots in the world.
-                            \t> dump    - To view everything in the world.
-                            \t> quit    - To stop the server.""");
+                    System.out.println("Sorry I did not understand '" + userInput + ". enter 'view' for assistance.");
                 }
             }
         });
