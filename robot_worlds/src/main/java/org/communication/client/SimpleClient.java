@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 import com.google.gson.*;
 import org.communication.server.robotModels.*;
-
+import static org.communication.server.Config.*;
 import static org.communication.server.DisplayHeaders.*;
 import static org.communication.server.SimpleServer.validCommands;
 
@@ -14,7 +14,7 @@ public class SimpleClient {
     public static boolean keepRunning = true;
     public static boolean launchCount = true;
     public static boolean reloading = false;
-
+    public static boolean repairing = false;
     public static void main(String[] args) throws IOException {
 
         Scanner sc = new Scanner(System.in);
@@ -40,53 +40,65 @@ public class SimpleClient {
                         System.exit(0);
                     }
                     try {
-                        if (!reloading) {
-                            if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3) {
-                                if (launchCount) {
-                                    launchCount = false;
-                                    Object robot = createRobotInstance(parts[1]);
-                                    if (robot != null) {
-                                        String shield = (String) robot.getClass().getMethod("getShield").invoke(robot);
-                                        String shots = (String) robot.getClass().getMethod("getShots").invoke(robot);
-                                        String[] stringArgs = {parts[1], shield, shots};
-                                        Request request = new Request(parts[2], parts[0], stringArgs);
-                                        out.println(gson.toJson(request));
+                        if (!repairing) {
+                            if (!reloading) {
+                                if (parts[0].equalsIgnoreCase("launch") && (robotModels.contains(parts[1])) && parts.length == 3) {
+                                    if (launchCount) {
+                                        launchCount = false;
+                                        Object robot = createRobotInstance(parts[1]);
+                                        if (robot != null) {
+                                            String shield = (String) robot.getClass().getMethod("getShield").invoke(robot);
+                                            String shots = (String) robot.getClass().getMethod("getShots").invoke(robot);
+                                            String[] stringArgs = {parts[1], shield, shots};
+                                            Request request = new Request(parts[2], parts[0], stringArgs);
+                                            out.println(gson.toJson(request));
+                                            out.flush();
+                                        }
+                                    } else {
+                                        System.out.println("You have already launched!");
+                                    }
+                                } else if (validCommands.contains(parts[0])) {
+                                    if (parts.length > 1) {
+                                        Request request = new Request();
+                                        request.setCommand(parts[0]);
+                                        request.setArguments(new String[]{parts[1]});
+                                        String jsonRequest = gson.toJson(request);
+                                        out.println(jsonRequest);
+                                        out.flush();
+                                    } else if (parts[0].equalsIgnoreCase("reload")) {
+                                        Request request = new Request();
+                                        request.setCommand(parts[0]);
+                                        String jsonRequest = gson.toJson(request);
+                                        out.println(jsonRequest);
+                                        out.flush();
+
+                                    } else if (parts[0].equalsIgnoreCase("repair")) {
+                                        Request request = new Request();
+                                        request.setCommand(parts[0]);
+                                        String jsonRequest = gson.toJson(request);
+                                        out.println(jsonRequest);
+                                        out.flush();
+
+                                    } else {
+                                        Request request = new Request();
+                                        request.setCommand(parts[0]);
+                                        String jsonRequest = gson.toJson(request);
+                                        out.println(jsonRequest);
                                         out.flush();
                                     }
                                 } else {
-                                    System.out.println("You have already launched!");
-                                }
-                            } else if (validCommands.contains(parts[0])) {
-                                if (parts.length > 1) {
-                                    Request request = new Request();
-                                    request.setCommand(parts[0]);
-                                    request.setArguments(new String[]{parts[1]});
-                                    String jsonRequest = gson.toJson(request);
-                                    out.println(jsonRequest);
-                                    out.flush();
-                                }else if (parts[0].equalsIgnoreCase("reload")){
-                                    Request request = new Request();
-                                    request.setCommand(parts[0]);
-                                    String jsonRequest = gson.toJson(request);
-                                    out.println(jsonRequest);
-                                    out.flush();
-
-                                } else {
-                                    Request request = new Request();
-                                    request.setCommand(parts[0]);
-                                    String jsonRequest = gson.toJson(request);
-                                    out.println(jsonRequest);
-                                    out.flush();
+                                    System.out.println("Invalid Command. Try again or enter 'help'");
+                                    if (userInput.startsWith("help")) {
+                                        helpMenu();
+                                    }
                                 }
                             } else {
-                                System.out.println("Invalid Command. Try again or enter 'help'");
-                                if (userInput.startsWith("help")) {
-                                    helpMenu();
-                                }
+                                System.out.println("Busy Reloading...");
                             }
-                        } else {
-                            System.out.println("Busy Reloading...");
+                        } else{
+                        System.out.println("Busy Repairing...");
                         }
+
                     } catch (Exception e) {
                         System.out.println("Invalid input: " + e.getMessage());
                     }
@@ -108,11 +120,20 @@ public class SimpleClient {
                 if (serverResponse.contains("Reloading Complete!")){
                     reloading = true; // Set reloading flag to true
                 try {
-                    Thread.sleep(5000); // Wait for 5 seconds
+                    Thread.sleep(reloadTime); // Wait for 5 seconds
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 reloading = false; // Set reloading flag to false after delay
+                }
+                if (serverResponse.contains("Repairing Complete!")){
+                    repairing = true; // Set repairing flag to true
+                    try {
+                        Thread.sleep(repairTime); // Wait for 5 seconds
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    repairing = false; // Set repairing flag to false after delay
                 }
                 displayServerResponse(serverResponse);
                 System.out.println();

@@ -21,7 +21,7 @@ public class SimpleServer implements Runnable {
     private final BufferedReader in;
     private final PrintStream out;
     public static ArrayList<String> robotNames = new ArrayList<>(); // ArrayList to store robot names
-    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state", "fire", "orientation", "reload")); //ArrayList to store robots valid commands
+    public static ArrayList<String> validCommands = new ArrayList<>(Arrays.asList("forward", "back", "look", "turn", "state", "fire", "orientation", "reload", "repair")); //ArrayList to store robots valid commands
     public static ArrayList<String> turns = new ArrayList<>(Arrays.asList("left", "right")); //ArrayList to store robots valid commands
     public static ArrayList<Robot> robotObjects = new ArrayList<>();
     Gson gson = new Gson();
@@ -66,7 +66,7 @@ public class SimpleServer implements Runnable {
                         out.println("game over");
 
 
-                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire") && !request.getCommand().equals("orientation") && !request.getCommand().equals("reload")) {
+                    }else if (validCommands.contains(request.getCommand()) && !request.getCommand().equals("look") && !request.getCommand().equals("state") && !request.getCommand().equals("fire") && !request.getCommand().equals("orientation") && !request.getCommand().equals("reload") && !request.getCommand().equals("repair")) {
 
                         try {
                             if (!turns.contains(request.getArguments()[0])) {
@@ -117,6 +117,7 @@ public class SimpleServer implements Runnable {
                         out.println(jsonToClient);
 
                     }else if (request.getCommand().equals("state") && validCommands.contains("state")) {
+                        assert robot != null;
                         String jsonToClient = sendStateResponseToClient(robot, gson, robot.getState().getShields(), robot.getState().getShots());
                         out.println(jsonToClient);
 
@@ -129,6 +130,12 @@ public class SimpleServer implements Runnable {
                         assert robot != null;
                         String jasonToClient = reloadResponse(robot, gson);
                         out.println(jasonToClient);
+
+                    }else if (request.getCommand().equals("repair") && validCommands.contains("repair")){
+                        assert robot != null;
+                        String jasonToClient = repairResponse(robot, gson);
+                        out.println(jasonToClient);
+
 
                     }else {
                         String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
@@ -150,53 +157,6 @@ public class SimpleServer implements Runnable {
         }
 
 
-
-    private void reloadShots(Robot robot, Object robotInstance) {
-        try {
-            Method getShotsMethod = robotInstance.getClass().getMethod("getShots");
-            String shots = (String) getShotsMethod.invoke(robotInstance);
-            int reloadShots = Integer.parseInt(shots);
-            robot.getState().setShots(reloadShots);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error getting shots for robot type: " + robotInstance.getClass().getSimpleName(), e);
-        }
-    }
-
-    private String reloadResponse(Robot robot, Gson gson) {
-        Object robotInstance;
-        switch (robot.getRobotType().toLowerCase()) {
-            case "venom":
-                robotInstance = new Venom();
-                break;
-            case "blaze":
-                robotInstance = new Blaze();
-                break;
-            case "demolisher":
-                robotInstance = new Demolisher();
-                break;
-            case "reaper":
-                robotInstance = new Reaper();
-                break;
-            case "warpath":
-                robotInstance = new Warpath();
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown robot type: " + robot.getRobotType());
-        }
-
-        reloadShots(robot, robotInstance);
-
-        Response response = new Response();
-        response.setResult("Reloaded");
-        Map<String, Object> data = new HashMap<>();
-        data.put("message", "Reloading Complete!");
-        State state = new State(robot.getState().getShields(), robot.getState().getShots());
-        state.setPosition(robot.coordinatePosition());
-        state.setDirection(robot.getCurrentDirection());
-        response.setState(state);
-        response.setData(data);
-        return gson.toJson(response);
-    }
     private String sendFireResponseMiss( Gson gson, int shots){
         Map<String, Object> data = new HashMap<>();
         Response response = new Response();
@@ -213,7 +173,6 @@ public class SimpleServer implements Runnable {
         return gson.toJson(response);
 
     }
-
 
     private String sendFireResponseHit(Robot hitRobot, Robot robot, Gson gson, int shields, int shots) {
         Map<String, Object> data = new HashMap<>();
@@ -241,9 +200,7 @@ public class SimpleServer implements Runnable {
         state.setStatus("NORMAL");
         response.setState(state);
         return gson.toJson(response);
-
     }
-
 
     private String sendStateResponseToClient(Robot robot, Gson gson, int shield, int shots){
         Response response = new Response();
@@ -279,11 +236,10 @@ public class SimpleServer implements Runnable {
         Map<String, Object> data = new HashMap<>();
         data.put("position", robot.coordinatePosition());
         data.put("visibility", Config.getVisibility());
-        data.put("reload", Config.getReloadTime());
-        data.put("repair", Config.getRepairTime());
+        data.put("reload", "5 seconds");
+        data.put("repair", "5 seconds");
         data.put("shields", robot.getState().getShields());
         response.setData(data);
-
         return gson.toJson(response);
     }
 
@@ -368,6 +324,84 @@ public class SimpleServer implements Runnable {
         // Convert response to JSON
         return gson.toJson(response);
     }
+
+
+    private String reloadResponse(Robot robot, Gson gson) {
+        if (robot.getRobotType().equalsIgnoreCase("venom")){
+            Venom venom = new Venom();
+            int reloadShots = Integer.parseInt(venom.getShots());
+            robot.getState().setShots(reloadShots);
+
+        }else if (robot.getRobotType().equalsIgnoreCase("blaze")){
+            Blaze blaze = new Blaze();
+            int reloadShots = Integer.parseInt(blaze.getShots());
+            robot.getState().setShots(reloadShots);
+
+        }else if (robot.getRobotType().equalsIgnoreCase("demolisher")) {
+            Demolisher demolisher = new Demolisher();
+            int reloadShots = Integer.parseInt(demolisher.getShots());
+            robot.getState().setShots(reloadShots);
+
+        }else if (robot.getRobotType().equalsIgnoreCase("reaper")) {
+            Reaper reaper = new Reaper();
+            int reloadShots = Integer.parseInt(reaper.getShots());
+            robot.getState().setShots(reloadShots);
+
+        }else if (robot.getRobotType().equalsIgnoreCase("warpath")) {
+            Warpath warpath = new Warpath();
+            int reloadShots = Integer.parseInt(warpath.getShots());
+            robot.getState().setShots(reloadShots);
+        }
+
+        Response response = new Response();
+        response.setResult("Reloaded");
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", "Reloading Complete!");
+        State state = new State(robot.getState().getShields(), robot.getState().getShots());
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        response.setState(state);
+        response.setData(data);
+        return gson.toJson(response);
+    }
+
+    private String repairResponse(Robot robot, Gson gson){
+        if (robot.getRobotType().equalsIgnoreCase("venom")){
+            Venom venom = new Venom();
+            int repairShield = Integer.parseInt(venom.getShield());
+            robot.getState().setShields(repairShield);
+        }else if (robot.getRobotType().equalsIgnoreCase("blaze")){
+            Blaze blaze = new Blaze();
+            int repairShield = Integer.parseInt(blaze.getShield());
+            robot.getState().setShields(repairShield);
+        }else if (robot.getRobotType().equalsIgnoreCase("demolisher")) {
+            Demolisher demolisher = new Demolisher();
+            int repairShield = Integer.parseInt(demolisher.getShield());
+            robot.getState().setShields(repairShield);
+        }else if (robot.getRobotType().equalsIgnoreCase("reaper")) {
+            Reaper reaper = new Reaper();
+            int repairShield = Integer.parseInt(reaper.getShield());
+            robot.getState().setShields(repairShield);
+        }else if (robot.getRobotType().equalsIgnoreCase("warpath")) {
+            Warpath warpath = new Warpath();
+            int repairShield = Integer.parseInt(warpath.getShield());
+            robot.getState().setShields(repairShield);
+        }
+
+        Response response = new Response();
+        response.setResult("Repair");
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", "Repairing Complete!");
+        State state = new State(robot.getState().getShields(), robot.getState().getShots());
+        state.setPosition(robot.coordinatePosition());
+        state.setDirection(robot.getCurrentDirection());
+        response.setState(state);
+        response.setData(data);
+        return gson.toJson(response);
+
+
+    }
+
 }
 
 

@@ -8,8 +8,8 @@ public class Config {
     public static int visibility = 200;
     public static int maxShield = 20;
     public static int maxShot = 20;
-    public static int reloadTime = 3;
-    public static int repairTime = 3;
+    public static int reloadTime = 5000;
+    public static int repairTime = 5000;
 
     // Getters and Setters
     public static int getTopLeftX_world() {
