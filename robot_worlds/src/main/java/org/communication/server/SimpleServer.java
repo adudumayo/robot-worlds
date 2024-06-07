@@ -43,6 +43,7 @@ public class SimpleServer implements Runnable {
 
                 try{
                     Request request = gson.fromJson(messageFromClient, Request.class);
+                   
                     if (request.getCommand().equals("launch")) {
                         String robotName = request.getRobotName();
                         String robotType = request.getArguments()[0];
@@ -57,7 +58,9 @@ public class SimpleServer implements Runnable {
                             out.println(sendResponsetoClient(robot, gson, shield, shots));
                             robotObjects.add(robot);
 
-                        } else {
+                        } 
+
+                        else {
                             String jsonToClient = errorResponse(robot, gson, "ERROR", "Too many of you in this world");
                             out.println(jsonToClient);
                         }
@@ -89,7 +92,7 @@ public class SimpleServer implements Runnable {
                             }
 
                         } catch (IllegalArgumentException | NullPointerException e) {
-                            String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
+                            String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments. Try launching first.");
                             out.println(errorResponse);
 
                         }
@@ -109,7 +112,9 @@ public class SimpleServer implements Runnable {
                         }
 
 
-                    }else if (request.getCommand().equals("look") && validCommands.contains("look")) {
+                     }
+                    // else if (request.getCommand().eq)
+                    else if (request.getCommand().equals("look") && validCommands.contains("look")) {
                         String newRobotCommand = request.getCommand();
                         Command command = Command.create(newRobotCommand);
                         robot.handleCommand(command);
@@ -137,15 +142,27 @@ public class SimpleServer implements Runnable {
                         out.println(jasonToClient);
 
 
-                    }else {
+                    }
+                    // else if (request.getCommand().equals("fire") && robotObjects.isEmpty()){
+                    //     String errorResponse = errorResponse(robot, gson, "ERROR", "No robots in the world");
+                    //     out.println(errorResponse);
+                    // }
+                    else {
                         String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments");
                         out.println(errorResponse);
                     }
 
-                }catch (JsonSyntaxException e){
+                }
+                catch (IllegalArgumentException | NullPointerException e) {
+                    String errorResponse = errorResponse(robot, gson, "ERROR", "Could not parse arguments. Try launching first.");
+                    out.println(errorResponse);
+
+                }
+                catch (JsonSyntaxException e){
                     System.out.println("invalid json received!");
                 }
             }
+            
             }catch (IOException e){
                 if (e instanceof SocketException){
                     System.exit(0);
